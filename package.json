@@ -1,0 +1,53 @@
+{
+    "name": "pancham-khaitan-new",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint",
+        "lint:fix": "next lint --fix",
+        "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+        "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
+    },
+    "dependencies": {
+        "@marsidev/react-turnstile": "^1.3.1",
+        "@tailwindcss/typography": "^0.5.19",
+        "@types/react-datepicker": "^6.2.0",
+        "@uiw/react-md-editor": "^4.0.7",
+        "clsx": "^2.1.1",
+        "geist": "^1.4.2",
+        "gray-matter": "^4.0.3",
+        "isomorphic-dompurify": "^2.30.1",
+        "lucide-react": "^0.525.0",
+        "marked": "^16.4.1",
+        "next": "15.4.1",
+        "react": "19.1.0",
+        "react-datepicker": "^8.4.0",
+        "react-dom": "19.1.0",
+        "react-hook-form": "^7.60.0",
+        "react-markdown": "^10.1.0",
+        "react-multi-carousel": "^2.8.6",
+        "rehype-sanitize": "^6.0.0",
+        "remark-gfm": "^4.0.1",
+        "resend": "^4.6.0",
+        "sass": "^1.89.2",
+        "slugify": "^1.6.6",
+        "tailwind-merge": "^3.3.1"
+    },
+    "devDependencies": {
+        "@eslint/eslintrc": "^3",
+        "@tailwindcss/postcss": "^4.1.16",
+        "@types/node": "^20",
+        "@types/react": "^19",
+        "@types/react-dom": "^19",
+        "autoprefixer": "^10.4.21",
+        "eslint": "^9",
+        "eslint-config-next": "15.4.1",
+        "eslint-plugin-better-tailwindcss": "^3.7.10",
+        "prettier": "^3.0.0",
+        "tailwindcss": "^4.1.16",
+        "typescript": "^5"
+    }
+}
