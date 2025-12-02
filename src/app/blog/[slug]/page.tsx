@@ -35,19 +35,21 @@ export async function generateMetadata({
         };
     }
 
+    const ogImageUrl = `https://panchamkhaitan.com/api/og?title=${encodeURIComponent(post.title)}`;
+
     return {
         title: `${post.title} | Blog`,
         description: `${post.blogDescription} | Pancham Khaitan's work`,
         openGraph: {
             title: post.title,
             description: `${post.blogDescription} | Pancham Khaitan's work`,
-            images: [`https://panchamkhaitan.com/blog/${post.slug}.jpeg`],
+            images: [ogImageUrl],
             url: `https://panchamkhaitan.com/blog/${post.slug}`,
         },
         twitter: {
             title: post.title,
             description: `${post.blogDescription} | Pancham Khaitan's work`,
-            images: [`https://panchamkhaitan.com/blog/${post.slug}.jpeg`],
+            images: [ogImageUrl],
             card: "summary_large_image",
         },
     };
