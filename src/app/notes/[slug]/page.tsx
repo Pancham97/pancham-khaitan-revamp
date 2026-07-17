@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { getNoteBySlug, getAllNotes } from "@/lib/server-queries";
 import { getFormattedDate } from "@/lib/formatDate";
 import ExternalNoteRedirect from "@/components/ExternalNoteRedirect";
-import BreadcrumbTitle from "@/components/BreadcrumbTitle";
+
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 
 interface PageProps {
@@ -79,7 +79,6 @@ export default async function NotePage({ params }: PageProps) {
 
     return (
         <article className="space-y-10">
-            <BreadcrumbTitle title={note.title} />
             <header className="space-y-3">
                 <h1
                     className={`

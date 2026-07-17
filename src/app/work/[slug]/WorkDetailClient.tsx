@@ -1,6 +1,4 @@
-"use client";
-
-import { IWorkDataPost } from "@/types/work";
+import type { IWorkDataPost } from "@/types/work";
 import { getFormattedDate, parseDateInput } from "@/lib/formatDate";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 
@@ -44,33 +42,18 @@ export default function WorkDetailClient({ work }: WorkDetailClientProps) {
     ].filter(Boolean) as { label: string; value: string }[];
 
     return (
-        <section className="space-y-10">
+        <section>
             {metadata.length > 0 && (
                 <dl
-                    className={`
-                      grid gap-4 rounded-xl border border-neutral-200/80
-                      bg-white/70 p-4 text-sm mt-4 leading-relaxed
-                      dark:border-white/10 dark:bg-white/5
-                      sm:grid-cols-2
-                    `}
+                    className="row-list"
+                    style={{ marginBottom: "1.75rem", marginTop: "0.5rem" }}
                 >
                     {metadata.map((item) => (
-                        <div key={item.label} className="space-y-1">
-                            <dt
-                                className={`
-                                  text-xs uppercase tracking-wide
-                                  text-neutral-500
-                                  dark:text-neutral-400
-                                `}
-                            >
+                        <div key={item.label} className="row-top" style={{ padding: "0.65rem 0" }}>
+                            <dt className="row-meta" style={{ margin: 0 }}>
                                 {item.label}
                             </dt>
-                            <dd
-                                className={`
-                                  font-medium text-neutral-800
-                                  dark:text-neutral-100
-                                `}
-                            >
+                            <dd className="row-title" style={{ margin: 0 }}>
                                 {item.value}
                             </dd>
                         </div>
@@ -78,51 +61,7 @@ export default function WorkDetailClient({ work }: WorkDetailClientProps) {
                 </dl>
             )}
 
-            <MarkdownRenderer
-                content={work.content}
-                className={`
-                  prose prose-neutral
-                  dark:prose-invert
-                  max-w-none
-                  prose-headings:font-bold prose-headings:text-neutral-900
-                  dark:prose-headings:text-white
-                  prose-p:text-neutral-600
-                  dark:prose-p:text-neutral-300
-                  prose-a:no-underline
-                  hover:prose-a:underline
-                  prose-strong:text-neutral-900
-                  dark:prose-strong:text-white
-                  prose-blockquote:border-neutral-300
-                  dark:prose-blockquote:border-neutral-700
-                `}
-            />
-
-            {work.acknowledgements && (
-                <section
-                    className={`
-                      border-t border-neutral-200
-                      dark:border-neutral-800
-                      pt-6
-                    `}
-                >
-                    <h3
-                        className={`
-                          font-semibold text-neutral-900
-                          dark:text-white
-                          mb-4
-                        `}
-                    >
-                        Acknowledgements
-                    </h3>
-                    <MarkdownRenderer
-                        content={work.acknowledgements}
-                        className={`
-                          prose prose-sm prose-neutral
-                          dark:prose-invert
-                        `}
-                    />
-                </section>
-            )}
+            <MarkdownRenderer content={work.content} className="prose" />
         </section>
     );
 }

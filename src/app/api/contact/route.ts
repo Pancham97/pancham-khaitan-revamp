@@ -1,5 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendContactEmails } from "@/lib/resend";
+import validateEmail from "@/lib/validateEmail";
+
+const FIELD_LIMITS = {
+    firstName: 80,
+    lastName: 80,
+    email: 254,
+    subject: 160,
+    message: 5000,
+};
+
+const hasHeaderLineBreak = (value: string) => /[\r\n]/.test(value);
+
+const isValidContactPayload = ({
+    firstName,
+    lastName,
+    email,
+    subject,
+    message,
+}: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    subject: string;
+    message: string;
+}) => {
+    if (!firstName || !lastName || !email || !subject || !message) {
+        return false;
+    }
+
+    if (
+        firstName.length > FIELD_LIMITS.firstName ||
+        lastName.length > FIELD_LIMITS.lastName ||
+        email.length > FIELD_LIMITS.email ||
+        subject.length > FIELD_LIMITS.subject ||
+        message.length > FIELD_LIMITS.message
+    ) {
+        return false;
+    }
+
+    return ![firstName, lastName, email, subject].some(hasHeaderLineBreak);
+};
 
 export async function POST(request: NextRequest) {
     try {
@@ -18,9 +59,24 @@ export async function POST(request: NextRequest) {
                 ? body.turnstileToken.trim()
                 : "";
 
-        if (!firstName || !lastName || !email || !subject || !message) {
+        if (
+            !isValidContactPayload({
+                firstName,
+                lastName,
+                email,
+                subject,
+                message,
+            })
+        ) {
             return NextResponse.json(
                 { error: "Invalid payload" },
+                { status: 400 },
+            );
+        }
+
+        if (!validateEmail(email)) {
+            return NextResponse.json(
+                { error: "Invalid email" },
                 { status: 400 },
             );
         }
@@ -33,6 +89,17 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
+        if (!turnstileSecret) {
+            console.error(
+                "TURNSTILE_SECRET_KEY is not configured; contact verification aborted",
+            );
+            return NextResponse.json(
+                { error: "Unable to verify request" },
+                { status: 500 },
+            );
+        }
+
         const turnstileResponse = await fetch(
             "https://challenges.cloudflare.com/turnstile/v0/siteverify",
             {
@@ -41,7 +108,7 @@ export async function POST(request: NextRequest) {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    secret: process.env.TURNSTILE_SECRET_KEY,
+                    secret: turnstileSecret,
                     response: turnstileToken,
                 }),
             },
@@ -68,7 +135,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         console.error("Contact API error:", error);
         return NextResponse.json(
-            { error: error instanceof Error ? error.message : "Unknown error" },
+            { error: "Unable to send message right now" },
             { status: 500 },
         );
     }

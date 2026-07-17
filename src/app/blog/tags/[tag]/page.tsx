@@ -10,27 +10,8 @@ interface PageProps {
 }
 
 export const metadata: Metadata = {
-    title: "Blog | Pancham Khaitan",
-    description:
-        "Pancham Khaitan is a software engineer who likes making things. He is also fond of music.",
-    openGraph: {
-        title: "Pancham Khaitan",
-        description:
-            "Pancham Khaitan is a software engineer who likes making things. He is also fond of music.",
-        images: [
-            "https://pancham-khaitan.s3.ap-south-1.amazonaws.com/portfolio/images/a57c22de-2b23-458f-8c9f-3d9514e87d93.jpg",
-        ],
-        url: "https://panchamkhaitan.com",
-    },
-    twitter: {
-        title: "Pancham Khaitan",
-        description:
-            "Pancham Khaitan is a software engineer who likes making things. He is also fond of music.",
-        images: [
-            "https://pancham-khaitan.s3.ap-south-1.amazonaws.com/portfolio/images/a57c22de-2b23-458f-8c9f-3d9514e87d93.jpg",
-        ],
-        card: "summary_large_image",
-    },
+    title: "Tags",
+    description: "Blog posts filtered by tag.",
 };
 
 // Add revalidation for ISR

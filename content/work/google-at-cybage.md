@@ -1,6 +1,6 @@
 ---
-title: "Google at Cybage"
-shortDescription: "Contributing to building the foundation for Google's marketing websites"
+title: "Glue — Google marketing sites library"
+shortDescription: "TypeScript library powering 2000+ Google marketing websites"
 startDate: "2018-07-09"
 endDate: "Sep 2021"
 heroImage: "https://pancham-khaitan.s3.ap-south-1.amazonaws.com/portfolio/images/df2cb7b5-a65a-4c44-9542-1b98dffaec45.jpg"
@@ -20,24 +20,24 @@ _Note: Since a lot of what I do is bound by a non-disclosure agreement, I am bar
 
 ### Background
 
-[Brand Studio](https://www.thinkwithgoogle.com/future-of-marketing/management-and-culture/google-marketing-brand-studio/) is Google's internal think tank that uses creativity, media, and technology to create experiences that connect Google products to the people who use them. My work, as a vendor, is to maintain and provide support, and introduce new features for the internal JavaScript library that provides the foundation to build websites for Google at scale.
+[Brand Studio](https://www.thinkwithgoogle.com/future-of-marketing/management-and-culture/google-marketing-brand-studio/) is Google's internal think tank that uses creativity, media, and technology to create experiences that connect Google products to the people who use them.
+
+As a contractor via Cybage, I worked on **Glue** — Google's internal TypeScript library that powers **2000+ marketing websites**. Hundreds of developers use it to ship Google-branded sites at scale.
 
 ### Work
 
-While working on a JavaScript library that is being used by hundreds of developers to create thousands of Google-branded websites is super fun in and of itself, keeping it relevant for the masses is a tough nut to crack.
+Building and maintaining Glue meant shipping features, keeping the library healthy, and supporting teams who depend on it every day.
 
-My tasks involve, but not are limited to,
+- Extending Glue to match product and design requirements
+    - New components
+    - Modular structure so code can be reused across sites
+    - Build, test, and release cycles
+    - Bug fixes and ongoing maintenance
+- Documentation for developers building on Glue
+- Working with design on both developer and end-user experience
+- Accessibility so sites work for everyone
 
-- Updating the code to match requirements
-    - Creating new components
-    - Optimising and splitting code in a modular structure to be reused by other components
-    - Building and testing code
-    - Maintaining and fixing bugs in the existing code and follow a release cycle
-- Writing documentation for the developers who use the library
-- Interacting with the design team to enhance the experience, both in terms of developer experience and the end-user experience
-- Creating an inclusive environment for the differently-abled people by focusing extensively on making the code accessible for all
-
-Other than this, I get the opportunity to interact with developers who use the library to develop websites for Google and help them resolve their issues in order to make a wonderful product.
+I also supported developers using Glue across Google marketing sites — debugging, guidance, and making the library better for the people who ship with it.
 
 Technologies used:
 

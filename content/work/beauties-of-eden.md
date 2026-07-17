@@ -8,8 +8,8 @@ heroImageAlt: "A group of women posing for the camera"
 heroImageCaption: "BoE is a community of women who are guided by biblical principles"
 imageLink: "https://unsplash.com/photos/ybPJ47PMT_M"
 imageSource: "Unsplash"
-isFeatured: true
-isHidden: false
+isFeatured: false
+isHidden: true
 context: "Freelance project"
 skills: "Front-end web development"
 createdAt: "2019-08-01"

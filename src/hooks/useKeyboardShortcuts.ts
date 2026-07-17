@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { NAV } from "@/data/site";
 
 type ShortcutConfig = {
     key: string;
@@ -9,15 +10,11 @@ type ShortcutConfig = {
     path: string;
 };
 
-const NAVIGATION_SHORTCUTS: ShortcutConfig[] = [
-    { key: "h", label: "Home", path: "/" },
-    { key: "w", label: "Work", path: "/work" },
-    { key: "b", label: "Blog", path: "/blog" },
-    { key: "u", label: "Updates", path: "/updates" },
-    { key: "n", label: "Notes", path: "/notes" },
-    { key: "a", label: "About", path: "/about" },
-    { key: "c", label: "Contact", path: "/contact" },
-];
+const NAVIGATION_SHORTCUTS: ShortcutConfig[] = NAV.map((item) => ({
+    key: item.key,
+    label: item.label,
+    path: item.href,
+}));
 
 const LEADER_KEY = "g";
 
@@ -81,29 +78,31 @@ export function useKeyboardShortcuts() {
             }
 
             if (awaitingLeader.current) {
-                awaitingLeader.current = false;
-                clearLeaderTimer();
                 const shortcut = singleKeyMap.get(key);
                 if (shortcut) {
                     event.preventDefault();
                     router.push(shortcut.path);
                 }
+                awaitingLeader.current = false;
+                clearLeaderTimer();
                 return;
             }
 
             if (key === LEADER_KEY) {
+                event.preventDefault();
                 awaitingLeader.current = true;
                 clearLeaderTimer();
                 resetTimer.current = window.setTimeout(() => {
                     awaitingLeader.current = false;
-                }, 1200);
+                    resetTimer.current = null;
+                }, 1000);
                 return;
             }
 
-            const singleShortcut = singleKeyMap.get(key);
-            if (singleShortcut) {
+            const shortcut = singleKeyMap.get(key);
+            if (shortcut) {
                 event.preventDefault();
-                router.push(singleShortcut.path);
+                router.push(shortcut.path);
             }
         };
 
@@ -112,20 +111,15 @@ export function useKeyboardShortcuts() {
             window.removeEventListener("keydown", handleKeyDown);
             clearLeaderTimer();
         };
-    }, [router, singleKeyMap, clearLeaderTimer]);
+    }, [clearLeaderTimer, router, singleKeyMap]);
 
-    const showHelp = useCallback(() => setHelpVisible(true), []);
     const hideHelp = useCallback(() => setHelpVisible(false), []);
-    const toggleHelp = useCallback(
-        () => setHelpVisible((visible) => !visible),
-        [],
-    );
 
     return {
         isHelpVisible,
-        showHelp,
+        setHelpVisible,
         hideHelp,
-        toggleHelp,
         shortcuts: NAVIGATION_SHORTCUTS,
+        leaderKey: LEADER_KEY,
     };
 }

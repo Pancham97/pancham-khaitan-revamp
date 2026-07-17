@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getBlogBySlug, getAllBlogs } from "@/lib/server-queries";
 import { getFormattedDate } from "@/lib/formatDate";
-import BreadcrumbTitle from "@/components/BreadcrumbTitle";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 
 interface PageProps {
@@ -38,7 +37,7 @@ export async function generateMetadata({
     const ogImageUrl = `https://panchamkhaitan.com/api/og?title=${encodeURIComponent(post.title)}`;
 
     return {
-        title: `${post.title} | Blog`,
+        title: post.title,
         description: `${post.blogDescription} | Pancham Khaitan's work`,
         openGraph: {
             title: post.title,
@@ -65,51 +64,24 @@ export default async function BlogPostPage({ params }: PageProps) {
 
     return (
         <article>
-            <BreadcrumbTitle title={post.title} />
-            <h1 className="big-headline-text">{post.title}</h1>
-            <p
-                className={`
-                  text-neutral-600
-                  dark:text-neutral-400
-                  mb-6 text-sm
-                `}
-            >
-                {getFormattedDate(post.createdAt)} • Time to read:{" "}
-                {post.timeToRead}
-            </p>
+            <header className="page-header">
+                <h1 className="page-title">{post.title}</h1>
+                <p className="page-lede">
+                    {getFormattedDate(post.createdAt)} · {post.timeToRead}
+                </p>
+                {post.tags && post.tags.length > 0 && (
+                    <p className="row-extra muted" style={{ marginTop: "0.75rem" }}>
+                        {post.tags.map((tag, index) => (
+                            <span key={tag}>
+                                {index > 0 ? " · " : ""}
+                                <a href={`/blog/tags/${tag}`}>{tag}</a>
+                            </span>
+                        ))}
+                    </p>
+                )}
+            </header>
 
-            {post.tags && post.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-6">
-                    {post.tags.map((tag, index) => (
-                        <a
-                            key={index}
-                            href={`/blog/tags/${tag}`}
-                            className={`
-                              inline-block px-2 py-0.5 text-xs border
-                              border-neutral-200
-                              dark:border-neutral-800
-                              rounded text-neutral-600
-                              dark:text-neutral-400
-                              hover:bg-neutral-100
-                              dark:hover:bg-white/10
-                              transition-colors no-underline
-                            `}
-                        >
-                            {tag}
-                        </a>
-                    ))}
-                </div>
-            )}
-
-            <MarkdownRenderer
-                content={post.content}
-                className={`
-                  prose max-w-none
-                  dark:prose-invert
-                  text-black
-                  dark:text-white
-                `}
-            />
+            <MarkdownRenderer content={post.content} className="prose" />
         </article>
     );
 }

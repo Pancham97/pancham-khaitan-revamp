@@ -1,38 +1,40 @@
 import { Metadata } from "next";
-import { getAllWork } from "@/lib/server-queries";
 import Link from "next/link";
+import { getAllWork } from "@/lib/server-queries";
 import { getFormattedDate } from "@/lib/formatDate";
+import { CAREER, SITE } from "@/data/site";
 
 export const metadata: Metadata = {
-    title: "Work | Pancham Khaitan",
-    description:
-        "Pancham Khaitan is a software engineer who likes building things. He is also fond of music.",
+    title: "Work",
+    description: "Work by Pancham Khaitan.",
     openGraph: {
-        title: "Pancham Khaitan's work",
-        description:
-            "Pancham Khaitan is a software engineer who likes building things. He is also fond of music.",
-        images: [
-            "https://pancham-khaitan.s3.ap-south-1.amazonaws.com/portfolio/images/a57c22de-2b23-458f-8c9f-3d9514e87d93.jpg",
-        ],
+        title: "Work",
+        description: "Work by Pancham Khaitan.",
         url: "https://panchamkhaitan.com/work",
-    },
-    twitter: {
-        card: "summary_large_image",
-        title: "Pancham Khaitan's work",
-        description:
-            "Pancham Khaitan is a software engineer who likes building things. He is also fond of music.",
-        images: [
-            "https://pancham-khaitan.s3.ap-south-1.amazonaws.com/portfolio/images/a57c22de-2b23-458f-8c9f-3d9514e87d93.jpg",
-        ],
     },
 };
 
-// Add revalidation for ISR
-export const revalidate = 3600; // Cache for 1 hour
+export const revalidate = 3600;
+
+/** Case studies already linked under Career — omit from Selected. */
+function careerCaseSlugs(): Set<string> {
+    const slugs = new Set<string>();
+    for (const job of CAREER) {
+        for (const h of job.highlights) {
+            if (h.href.startsWith("/work/")) {
+                slugs.add(h.href.replace(/^\/work\//, ""));
+            }
+        }
+    }
+    return slugs;
+}
 
 export default async function WorkPage() {
     const allWork = await getAllWork();
-    const data = allWork.filter((w) => !w.isHidden);
+    const linkedFromCareer = careerCaseSlugs();
+    const data = allWork.filter(
+        (w) => !w.isHidden && !linkedFromCareer.has(w.slug),
+    );
     const groups = data.reduce<Record<string, typeof data>>((acc, w) => {
         const year = w.createdAt
             ? new Date(w.createdAt).getFullYear().toString()
@@ -44,99 +46,132 @@ export default async function WorkPage() {
 
     return (
         <div>
-            <header className="mb-8">
-                <h1 className="big-headline-text">Work</h1>
-                <p
-                    className={`
-                      text-neutral-700
-                      dark:text-neutral-300
-                      max-w-2xl measure lede
-                    `}
-                >
-                    “The reward for good work is more work.”
+            <header className="page-header">
+                <h1 className="page-title">Work</h1>
+                <p className="page-lede">
+                    Career first. Case studies sit under the job they belong to.
                 </p>
             </header>
 
-            {years.map((year) => (
-                <section key={year} className="mb-6">
-                    <div
-                        className={`
-                          sticky top-0 z-10 backdrop-blur
-                          supports-[backdrop-filter]:border-b-1
-                          border-neutral-200/50
-                          dark:border-neutral-950/25
-                          py-1 -mx-4 px-4
-                          md:mx-0 md:px-0
-                        `}
-                    >
-                        <h2 className="text-sm font-medium text-neutral-500">
-                            {year}
-                        </h2>
-                    </div>
-                    <ul
-                        className={`
-                          divide-y-1 divide-neutral-200/50
-                          dark:divide-neutral-950/25
-                        `}
-                    >
-                        {groups[year].map((w) => (
-                            <li key={w.slug} className="py-4">
-                                <Link
-                                    href={`/work/${w.slug}`}
-                                    className={`
-                                      no-underline
-                                      hover:underline
-                                    `}
-                                >
-                                    <div
-                                        className={`
-                                          flex items-baseline justify-between
-                                          gap-4
-                                        `}
+            <section
+                className="career-section"
+                aria-labelledby="career-heading"
+            >
+                <h2 id="career-heading" className="section-title">
+                    Career
+                </h2>
+                {CAREER.map((job) => (
+                    <article key={job.org} className="career-block">
+                        <div className="row-top">
+                            <h3 className="career-block__org">
+                                {"orgHref" in job && job.orgHref ? (
+                                    <a
+                                        href={job.orgHref}
+                                        target="_blank"
+                                        rel="noreferrer"
                                     >
-                                        <div className="text-base font-semibold">
-                                            {w.title}
-                                        </div>
-                                        <time
-                                            className={`
-                                              text-sm text-neutral-500
-                                              dark:text-neutral-400
-                                              whitespace-nowrap
-                                            `}
-                                        >
-                                            {w.createdAt
-                                                ? getFormattedDate(w.createdAt)
-                                                : ""}
-                                        </time>
-                                    </div>
-                                    {w.shortDescription && (
-                                        <p
-                                            className={`
-                                              text-sm text-neutral-600
-                                              dark:text-neutral-600
-                                              mt-1 measure
-                                            `}
-                                        >
-                                            {w.shortDescription}
-                                        </p>
-                                    )}
-                                </Link>
-                            </li>
-                        ))}
-                    </ul>
-                </section>
-            ))}
+                                        {job.org}
+                                    </a>
+                                ) : (
+                                    job.org
+                                )}
+                            </h3>
+                            <span className="row-meta">{job.period}</span>
+                        </div>
+                        <p className="career-block__role">{job.role}</p>
+                        {job.org === "SingleStore" ? (
+                            <p className="career-block__summary">
+                                I build{" "}
+                                <a
+                                    href={SITE.heliosHref}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    Helios
+                                </a>{" "}
+                                (managed SingleStore) and{" "}
+                                <a
+                                    href={SITE.auraAnalystHref}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    Aura Analyst
+                                </a>
+                                . Data loading UI, making Command+K way faster,
+                                tools that help people write SQL.
+                            </p>
+                        ) : (
+                            <p className="career-block__summary">
+                                {job.summary}
+                            </p>
+                        )}
+                        {job.highlights.length > 0 && (
+                            <ul className="career-block__list">
+                                {job.highlights.map((h) => (
+                                    <li key={h.href}>
+                                        {h.href.startsWith("/") ? (
+                                            <Link href={h.href}>
+                                                {h.title} →
+                                            </Link>
+                                        ) : (
+                                            <a
+                                                href={h.href}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                            >
+                                                {h.title} ↗
+                                            </a>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </article>
+                ))}
+            </section>
 
-            {data.length === 0 && (
-                <p
-                    className={`
-                      text-neutral-600
-                      dark:text-neutral-400
-                    `}
-                >
-                    No projects to share just yet.
-                </p>
-            )}
+            <section className="section" aria-labelledby="cases-heading">
+                <h2 id="cases-heading" className="section-title">
+                    Selected
+                </h2>
+                {years.map((year) => (
+                    <div key={year} className="section-block">
+                        <div className="year-label">{year}</div>
+                        <ul className="row-list">
+                            {groups[year].map((w) => {
+                                const dateLabel = w.createdAt
+                                    ? getFormattedDate(w.createdAt)
+                                    : "";
+                                return (
+                                    <li key={w.slug}>
+                                        <Link
+                                            href={`/work/${w.slug}`}
+                                            className="row-link"
+                                        >
+                                            <div className="row-top">
+                                                <span className="row-title">
+                                                    {w.title}
+                                                </span>
+                                                <time className="row-meta">
+                                                    {dateLabel}
+                                                </time>
+                                            </div>
+                                            {w.shortDescription && (
+                                                <p className="row-desc">
+                                                    {w.shortDescription}
+                                                </p>
+                                            )}
+                                        </Link>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </div>
+                ))}
+                {data.length === 0 && (
+                    <p className="muted">Nothing here yet.</p>
+                )}
+            </section>
         </div>
     );
 }

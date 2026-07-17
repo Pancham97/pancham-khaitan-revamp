@@ -11,44 +11,27 @@ export default function CommandPaletteMeta({
     external,
     active,
 }: CommandPaletteMetaProps) {
+    const metaClassName = [
+        "text-xs font-semibold uppercase tracking-wider",
+        active
+            ? "text-neutral-300 dark:text-white/60"
+            : "text-neutral-500 dark:text-neutral-400",
+    ].join(" ");
+    const iconClassName = [
+        "h-2.5 w-2.5",
+        active
+            ? "text-neutral-300 dark:text-white/60"
+            : "text-neutral-500 dark:text-neutral-400",
+    ].join(" ");
+
     return (
         <span className="flex items-center gap-1.5">
-            <span
-                className={`
-                  text-[10px] uppercase tracking-wider font-semibold
-                  ${
-        active
-            ? `
-              text-neutral-300
-              dark:text-white/60
-            `
-            : `
-              text-neutral-500
-              dark:text-neutral-400
-            `
-        }
-                `}
-            >
-                {meta}
-            </span>
+            <span className={metaClassName}>{meta}</span>
             {external && (
                 <MoveUpRight
-                    className={`
-                      w-2.5 h-2.5
-                      ${
-                active
-                    ? `
-                      text-neutral-300
-                      dark:text-white/60
-                    `
-                    : `
-                      text-neutral-500
-                      dark:text-neutral-400
-                    `
-                }
-                    `}
+                    className={iconClassName}
                     strokeWidth={1.5}
-                    aria-label="Opens in new tab"
+                    aria-hidden="true"
                 />
             )}
         </span>

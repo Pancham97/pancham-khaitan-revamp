@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Moon, Sun } from "lucide-react";
+import { useSyncExternalStore } from "react";
 
 type Theme = "light" | "dark";
 
@@ -11,91 +10,58 @@ declare global {
     }
 }
 
-function applyTheme(theme: Theme) {
-    if (
-        typeof window !== "undefined" &&
-        typeof window.__setTheme === "function"
-    ) {
-        window.__setTheme(theme);
-        return;
+function getTheme(): Theme {
+    if (typeof document === "undefined") {
+        return "light";
     }
-    const root = document.documentElement;
-    if (theme === "dark") {
-        root.classList.add("dark");
-        root.setAttribute("data-theme", "dark");
-    } else {
-        root.classList.remove("dark");
-        root.setAttribute("data-theme", "light");
-    }
-    root.style.colorScheme = theme;
-    const meta = document.querySelector('meta[name="color-scheme"]');
-    if (meta) {
-        meta.setAttribute("content", theme);
-    }
+    return document.documentElement.getAttribute("data-theme") === "dark"
+        ? "dark"
+        : "light";
+}
 
-    // Broadcast theme change to all listeners
+function subscribe(onStoreChange: () => void) {
+    window.addEventListener("theme-change", onStoreChange);
+    return () => window.removeEventListener("theme-change", onStoreChange);
+}
+
+function applyTheme(theme: Theme) {
+    if (typeof window.__setTheme === "function") {
+        window.__setTheme(theme);
+    } else {
+        const root = document.documentElement;
+        root.classList.toggle("dark", theme === "dark");
+        root.setAttribute("data-theme", theme);
+        root.style.colorScheme = theme;
+        const meta = document.querySelector('meta[name="color-scheme"]');
+        if (meta) {
+            meta.setAttribute("content", theme);
+        }
+        try {
+            localStorage.setItem("theme", theme);
+        } catch {
+            /* ignore */
+        }
+    }
     window.dispatchEvent(
         new CustomEvent("theme-change", { detail: { theme } }),
     );
 }
 
 export default function ThemeToggle() {
-    const [theme, setTheme] = useState<Theme>("light");
-
-    // Initialize from localStorage; default to light
-    useEffect(() => {
-        const stored =
-            typeof window !== "undefined"
-                ? (localStorage.getItem("theme") as Theme | null)
-                : null;
-        const initial: Theme = stored === "dark" ? "dark" : "light";
-        setTheme(initial);
-        applyTheme(initial);
-        try {
-            localStorage.setItem("theme", initial);
-        } catch {}
-
-        // Listen for theme changes from other components
-        const handleThemeChange = (e: Event) => {
-            const customEvent = e as CustomEvent<{ theme: Theme }>;
-            setTheme(customEvent.detail.theme);
-        };
-        window.addEventListener("theme-change", handleThemeChange);
-        return () =>
-            window.removeEventListener("theme-change", handleThemeChange);
-    }, []);
-
-    const toggle = () => {
-        const next: Theme = theme === "dark" ? "light" : "dark";
-        setTheme(next);
-        applyTheme(next);
-        try {
-            localStorage.setItem("theme", next);
-        } catch {}
-    };
-
+    const theme = useSyncExternalStore(subscribe, getTheme, () => "light");
     const isDark = theme === "dark";
 
     return (
         <button
             type="button"
-            onClick={toggle}
+            className="theme-toggle"
             aria-pressed={isDark}
             aria-label={
                 isDark ? "Switch to light theme" : "Switch to dark theme"
             }
-            className={`
-              rounded p-1.5
-              hover:bg-neutral-100
-              dark:hover:bg-white/10
-              transition-colors
-            `}
+            onClick={() => applyTheme(isDark ? "light" : "dark")}
         >
-            {isDark ? (
-                <Sun className="w-4 h-4" strokeWidth={1.5} />
-            ) : (
-                <Moon className="w-4 h-4" strokeWidth={1.5} />
-            )}
+            {isDark ? "Light" : "Dark"}
         </button>
     );
 }

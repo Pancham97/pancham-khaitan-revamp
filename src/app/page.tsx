@@ -1,205 +1,175 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
-    getFeaturedWork,
-    getAllBlogs,
-    getLatestUpdates,
-} from "@/lib/server-queries";
+    FEATURED_MUSIC,
+    FEATURED_PROJECT,
+    NOW,
+    PHOTOS,
+    SITE,
+} from "@/data/site";
 import { getFormattedDate } from "@/lib/formatDate";
 
 export const revalidate = 1800;
 
 export default async function Home() {
-    const [featured, blogs, updates] = await Promise.all([
-        getFeaturedWork(),
-        getAllBlogs(),
-        getLatestUpdates(3),
-    ]);
-
-    const latestBlogs = blogs.slice(0, 5);
+    const nowUpdated = getFormattedDate(NOW.updated);
 
     return (
-        <div className="home">
-            <section className="hero">
-                <div className="mx-auto max-w-3xl">
-                    <h1 className="big-headline-text">Hello, I’m Pancham.</h1>
-                    <p
-                        className={`
-                          max-w-2xl text-neutral-700
-                          dark:text-neutral-600
-                          measure lede
-                        `}
-                    >
-                        I design and build software. I enjoy systems that feel
-                        fast, simple, and thoughtfully made — and I sing for
-                        joy. Below is a quick selection of my work and recent
-                        writing.
-                    </p>
+        <div className="index">
+            <header className="page-header index-hero">
+                <div className="index-hero__grid">
+                    <div className="index-hero__copy">
+                        <h1 className="index-title">
+                            <span className="index-title__line">
+                                {SITE.name}
+                            </span>
+                        </h1>
+                        <p className="index-meta">
+                            <span>{SITE.title}</span>
+                            <span>
+                                at{" "}
+                                <a
+                                    href={SITE.orgHref}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    {SITE.org}
+                                </a>
+                            </span>
+                            <span>{SITE.location}</span>
+                        </p>
+                        <p className="index-lede">{SITE.tagline}</p>
+                        <p className="index-lede index-lede--secondary">
+                            {SITE.workLine}
+                        </p>
+                    </div>
+                    <figure className="index-hero__photo">
+                        <Image
+                            src={PHOTOS.cover.src}
+                            alt={PHOTOS.cover.alt}
+                            width={PHOTOS.cover.width}
+                            height={PHOTOS.cover.height}
+                            className="index-hero__img"
+                            sizes="(max-width: 639px) 13.5rem, 13.5rem"
+                            priority
+                        />
+                    </figure>
                 </div>
+            </header>
+
+            <section
+                className="index-focus"
+                aria-labelledby="index-focus-label"
+            >
+                <h2 id="index-focus-label" className="section-title">
+                    Now
+                </h2>
+                {nowUpdated && (
+                    <p className="index-focus__updated muted">
+                        Updated {nowUpdated}
+                    </p>
+                )}
+                <ul className="row-list now-focus-list">
+                    {NOW.items.map((item) => (
+                        <li key={item}>
+                            <p
+                                className="index-focus__text"
+                                style={{ margin: 0 }}
+                            >
+                                {item}
+                            </p>
+                        </li>
+                    ))}
+                </ul>
+                <p className="row-extra">
+                    <Link href="/now" className="see-more-link">
+                        Log →
+                    </Link>
+                </p>
             </section>
 
-            {updates.length > 0 && (
-                <section className="mt-10">
-                    <div className="mx-auto max-w-3xl">
-                        <h2 className="headline-text mb-4">Latest</h2>
-                        <ul className="space-y-3">
-                            {updates.map((u) => (
-                                <li
-                                    key={u._id}
-                                    className={`
-                                      border-b-1 border-neutral-200/50
-                                      dark:border-neutral-950/25
-                                      pb-3
-                                    `}
-                                >
-                                    <div
-                                        className={`
-                                          flex items-baseline justify-between
-                                          gap-4
-                                        `}
-                                    >
-                                        <div
-                                            className={`
-                                              text-base font-semibold flex
-                                              items-center gap-2
-                                            `}
-                                        >
-                                            {u.title}
-                                        </div>
-                                        <time
-                                            className={`
-                                              text-sm text-neutral-500
-                                              dark:text-neutral-400
-                                              whitespace-nowrap
-                                            `}
-                                        >
-                                            {getFormattedDate(u.createdAt)}
-                                        </time>
-                                    </div>
-                                    {u.snippet && (
-                                        <p
-                                            className={`
-                                              text-sm text-neutral-600
-                                              dark:text-neutral-600
-                                              mt-1 measure
-                                            `}
-                                        >
-                                            {u.snippet}
-                                        </p>
-                                    )}
-                                    {u.linkUrl && (
-                                        <div className="mt-1 text-sm">
-                                            <a
-                                                href={u.linkUrl}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="see-more-link"
-                                            >
-                                                {u.linkLabel || "Open"} →
-                                            </a>
-                                        </div>
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
-                        <div className="mt-4">
-                            <Link href="/updates" className="see-more-link">
-                                All updates →
-                            </Link>
-                        </div>
-                    </div>
-                </section>
-            )}
+            <section
+                className="section"
+                aria-labelledby="index-pick-label"
+            >
+                <h2 id="index-pick-label" className="section-title">
+                    A few things
+                </h2>
+                <ul className="row-list">
+                    <li>
+                        <Link href="/work/helios" className="row-link">
+                            <div className="row-top">
+                                <span className="row-title">Helios</span>
+                                <span className="row-meta">Work</span>
+                            </div>
+                            <p className="row-desc">
+                                Managed SingleStore — data loading, Command+K,
+                                the product customers live in.
+                            </p>
+                        </Link>
+                    </li>
+                    <li>
+                        <a
+                            href={FEATURED_PROJECT.href}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="row-link"
+                        >
+                            <div className="row-top">
+                                <span className="row-title">Steno ↗</span>
+                                <span className="row-meta">Side project</span>
+                            </div>
+                            <p className="row-desc">
+                                Local Mac dictation. Honestly made me more
+                                productive. Private, hold-to-talk.
+                            </p>
+                        </a>
+                    </li>
+                    <li>
+                        <a
+                            href={FEATURED_MUSIC.href}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="row-link"
+                        >
+                            <div className="row-top">
+                                <span className="row-title">
+                                    {FEATURED_MUSIC.title} ↗
+                                </span>
+                                <span className="row-meta">Music</span>
+                            </div>
+                            <p className="row-desc">{FEATURED_MUSIC.blurb}</p>
+                        </a>
+                    </li>
+                </ul>
+                <p className="row-extra" style={{ marginTop: "0.75rem" }}>
+                    <Link href="/work" className="see-more-link">
+                        Work →
+                    </Link>
+                    {" · "}
+                    <Link href="/projects" className="see-more-link">
+                        Projects →
+                    </Link>
+                    {" · "}
+                    <Link href="/blog" className="see-more-link">
+                        Blog →
+                    </Link>
+                </p>
+            </section>
 
-            <section className="mt-10">
-                <div
-                    className={`
-                      mx-auto max-w-3xl grid gap-12
-                      md:grid-cols-2
-                    `}
-                >
-                    <div>
-                        <h2 className="headline-text mb-4">Work</h2>
-                        <ul className="space-y-3">
-                            {featured.map((w) => (
-                                <li
-                                    key={w.slug}
-                                    className={`
-                                      border-b-1 border-neutral-200/50
-                                      dark:border-neutral-950/25
-                                      pb-3
-                                    `}
-                                >
-                                    <Link
-                                        href={`/work/${w.slug}`}
-                                        className={`
-                                          no-underline
-                                          hover:underline
-                                        `}
-                                    >
-                                        <div className="text-base font-semibold">
-                                            {w.title}
-                                        </div>
-                                        {w.shortDescription && (
-                                            <div
-                                                className={`
-                                                  text-sm text-neutral-600
-                                                  dark:text-neutral-600
-                                                `}
-                                            >
-                                                {w.shortDescription}
-                                            </div>
-                                        )}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                        <div className="mt-4">
-                            <Link href="/work" className="see-more-link">
-                                All work →
-                            </Link>
-                        </div>
-                    </div>
-                    <div>
-                        <h2 className="headline-text mb-4">Blog</h2>
-                        <ul className="space-y-3">
-                            {latestBlogs.map((b) => (
-                                <li
-                                    key={b.slug}
-                                    className={`
-                                      border-b-1 border-neutral-200/50
-                                      dark:border-neutral-950/25
-                                      pb-3
-                                    `}
-                                >
-                                    <Link
-                                        href={`/blog/${b.slug}`}
-                                        className={`
-                                          no-underline
-                                          hover:underline
-                                        `}
-                                    >
-                                        <div className="text-base font-semibold">
-                                            {b.title}
-                                        </div>
-                                        <div
-                                            className={`
-                                              text-sm text-neutral-600
-                                              dark:text-neutral-600
-                                            `}
-                                        >
-                                            {getFormattedDate(b.createdAt)}
-                                        </div>
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                        <div className="mt-4">
-                            <Link href="/blog" className="see-more-link">
-                                All posts →
-                            </Link>
-                        </div>
-                    </div>
-                </div>
+            <section
+                className="section index-hello"
+                aria-labelledby="index-hello-label"
+            >
+                <h2 id="index-hello-label" className="section-title">
+                    Say hi
+                </h2>
+                <p className="index-hello__text">
+                    Software, music, photos, random ideas —{" "}
+                    <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+                    {" · "}
+                    <Link href="/contact">Contact</Link>
+                </p>
             </section>
         </div>
     );

@@ -14,6 +14,15 @@ module.exports = {
                 "custom-grey": "#6f6f6f",
             },
             fontFamily: {},
+            /* Mono-friendly floor: never below 16px sitewide */
+            fontSize: {
+                xs: ["1rem", { lineHeight: "1.45" }], // 16px
+                sm: ["1.0625rem", { lineHeight: "1.5" }], // 17px
+                base: ["1.125rem", { lineHeight: "1.65" }], // 18px
+                lg: ["1.25rem", { lineHeight: "1.55" }], // 20px
+                xl: ["1.375rem", { lineHeight: "1.45" }], // 22px
+                "2xl": ["1.625rem", { lineHeight: "1.3" }], // 26px
+            },
         },
     },
     plugins: [require("@tailwindcss/typography")],

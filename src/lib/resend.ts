@@ -5,6 +5,13 @@ const resend = process.env.RESEND_API_KEY
     ? new Resend(process.env.RESEND_API_KEY)
     : null;
 
+class EmailConfigurationError extends Error {
+    constructor() {
+        super("Email service is not configured");
+        this.name = "EmailConfigurationError";
+    }
+}
+
 export interface WelcomeEmailProps {
     email: string;
     name?: string;
@@ -18,14 +25,33 @@ interface ContactEmailProps {
     message: string;
 }
 
-export const sendWelcomeEmail = async ({ email, name }: WelcomeEmailProps) => {
+const htmlEntities: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+};
+
+const escapeHtml = (value: string) => {
+    return value.replace(/[&<>"']/g, (character) => htmlEntities[character]);
+};
+
+const getResendClient = () => {
     if (!resend) {
-        console.warn("Resend API key not configured, skipping email send");
-        return { id: "no-resend-key" };
+        console.error("RESEND_API_KEY is not configured; email send aborted");
+        throw new EmailConfigurationError();
     }
 
+    return resend;
+};
+
+export const sendWelcomeEmail = async ({ email, name }: WelcomeEmailProps) => {
+    const resendClient = getResendClient();
+    const safeName = name ? escapeHtml(name) : "";
+
     try {
-        const { data, error } = await resend.emails.send({
+        const { data, error } = await resendClient.emails.send({
             from: "Pancham Khaitan <hello@updates.panchamkhaitan.com>",
             to: [email],
             subject: "Welcome to my newsletter!",
@@ -34,7 +60,7 @@ export const sendWelcomeEmail = async ({ email, name }: WelcomeEmailProps) => {
           <h1 style="color: #43aa8b; margin-bottom: 20px;">Welcome to my newsletter!</h1>
           
           <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
-            ${name ? `Hi ${name},` : "Hi there,"}
+            ${safeName ? `Hi ${safeName},` : "Hi there,"}
           </p>
           
           <p style="color: #333; line-height: 1.6; margin-bottom: 20px;">
@@ -109,20 +135,21 @@ export const sendContactEmails = async ({
     subject,
     message,
 }: ContactEmailProps) => {
-    if (!resend) {
-        console.warn(
-            "Resend API key not configured, skipping contact email send",
-        );
-        return { visitorEmail: "no-resend-key", ownerEmail: "no-resend-key" };
-    }
-
+    const resendClient = getResendClient();
     const fromAddress = "Pancham Khaitan <hello@updates.panchamkhaitan.com>";
     const ownerEmail =
         process.env.PROFESSIONAL_EMAIL || "hello@panchamkhaitan.com";
+    const safeFirstName = escapeHtml(firstName);
+    const safeLastName = escapeHtml(lastName);
+    const safeEmail = escapeHtml(email);
+    const safeSubject = escapeHtml(subject);
+    const safeMessage = escapeHtml(message);
+    const replyHref = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(`Re: ${subject}`)}`;
+    const safeReplyHref = escapeHtml(replyHref);
 
     try {
         const [visitorResponse, ownerResponse] = await Promise.all([
-            resend.emails.send({
+            resendClient.emails.send({
                 from: fromAddress,
                 to: [email],
                 subject: "Message received",
@@ -131,19 +158,19 @@ export const sendContactEmails = async ({
             <div style="margin-bottom: 32px;">
               <h1 style="font-size: 24px; font-weight: 600; margin: 0 0 16px 0; color: #000;">Thanks for reaching out</h1>
               <p style="font-size: 16px; line-height: 1.6; margin: 0; color: #525252;">
-                Hey ${firstName}, I've received your message and will get back to you as soon as possible.
+                Hey ${safeFirstName}, I've received your message and will get back to you as soon as possible.
               </p>
             </div>
 
             <div style="margin: 32px 0; padding: 24px; background: #fafafa; border-radius: 4px;">
               <div style="margin-bottom: 20px;">
                 <p style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 8px 0; color: #737373;">Subject</p>
-                <p style="font-size: 16px; margin: 0; color: #000; font-weight: 500;">${subject}</p>
+                <p style="font-size: 16px; margin: 0; color: #000; font-weight: 500;">${safeSubject}</p>
               </div>
 
               <div>
                 <p style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 8px 0; color: #737373;">Message</p>
-                <p style="font-size: 15px; line-height: 1.6; margin: 0; color: #000; white-space: pre-wrap;">${message}</p>
+                <p style="font-size: 15px; line-height: 1.6; margin: 0; color: #000; white-space: pre-wrap;">${safeMessage}</p>
               </div>
             </div>
 
@@ -172,7 +199,7 @@ Pancham Khaitan
 panchamkhaitan.com
         `,
             }),
-            resend.emails.send({
+            resendClient.emails.send({
                 from: fromAddress,
                 to: [ownerEmail],
                 replyTo: email,
@@ -187,23 +214,23 @@ panchamkhaitan.com
             <div style="margin: 32px 0; padding: 24px; background: #fafafa; border-radius: 4px;">
               <div style="margin-bottom: 20px;">
                 <p style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 8px 0; color: #737373;">From</p>
-                <p style="font-size: 16px; margin: 0 0 4px 0; color: #000; font-weight: 500;">${firstName} ${lastName}</p>
-                <p style="font-size: 14px; margin: 0; color: #525252;">${email}</p>
+                <p style="font-size: 16px; margin: 0 0 4px 0; color: #000; font-weight: 500;">${safeFirstName} ${safeLastName}</p>
+                <p style="font-size: 14px; margin: 0; color: #525252;">${safeEmail}</p>
               </div>
 
               <div style="margin-bottom: 20px;">
                 <p style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 8px 0; color: #737373;">Subject</p>
-                <p style="font-size: 16px; margin: 0; color: #000; font-weight: 500;">${subject}</p>
+                <p style="font-size: 16px; margin: 0; color: #000; font-weight: 500;">${safeSubject}</p>
               </div>
 
               <div>
                 <p style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 8px 0; color: #737373;">Message</p>
-                <p style="font-size: 15px; line-height: 1.6; margin: 0; color: #000; white-space: pre-wrap;">${message}</p>
+                <p style="font-size: 15px; line-height: 1.6; margin: 0; color: #000; white-space: pre-wrap;">${safeMessage}</p>
               </div>
             </div>
 
             <div style="margin-top: 32px;">
-              <a href="mailto:${email}?subject=Re: ${encodeURIComponent(subject)}" style="display: inline-block; padding: 12px 24px; background: #000; color: #fff; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: 500;">Reply to ${firstName}</a>
+              <a href="${safeReplyHref}" style="display: inline-block; padding: 12px 24px; background: #000; color: #fff; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: 500;">Reply to ${safeFirstName}</a>
             </div>
           </div>
         `,

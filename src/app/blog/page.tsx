@@ -1,33 +1,22 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { getFormattedDate } from "@/lib/formatDate";
-import { getAllBlogs } from "@/lib/server-queries";
+import { getAllWriting } from "@/lib/writing";
 
 export const metadata: Metadata = {
-    title: "Blog | Pancham Khaitan",
-    description:
-        "Pancham Khaitan's blog. Pancham Khaitan is a software engineer who likes building things. He is also fond of music.",
+    title: "Blog",
+    description: "Writing by Pancham Khaitan.",
     openGraph: {
-        title: "Pancham Khaitan's blog. Pancham Khaitan is a software engineer who likes building things. He is also fond of music.",
-        images: [
-            "https://pancham-khaitan.s3.ap-south-1.amazonaws.com/portfolio/images/a57c22de-2b23-458f-8c9f-3d9514e87d93.jpg",
-        ],
+        title: "Blog",
+        description: "Writing by Pancham Khaitan.",
         url: "https://panchamkhaitan.com/blog",
-    },
-    twitter: {
-        title: "Pancham Khaitan's blog. Pancham Khaitan is a software engineer who likes building things. He is also fond of music.",
-        images: [
-            "https://pancham-khaitan.s3.ap-south-1.amazonaws.com/portfolio/images/a57c22de-2b23-458f-8c9f-3d9514e87d93.jpg",
-        ],
-        card: "summary_large_image",
     },
 };
 
-// Add revalidation for ISR
-export const revalidate = 3600; // Cache for 1 hour
+export const revalidate = 3600;
 
 export default async function BlogPage() {
-    const posts = await getAllBlogs();
+    const posts = await getAllWriting();
     const groups = posts.reduce<Record<string, typeof posts>>((acc, p) => {
         const year = new Date(p.createdAt).getFullYear().toString();
         (acc[year] ||= []).push(p);
@@ -37,97 +26,93 @@ export default async function BlogPage() {
 
     return (
         <div>
-            <header className="mb-8">
-                <h1 className="big-headline-text">Blog</h1>
-                <p
-                    className={`
-                      text-neutral-700
-                      dark:text-neutral-300
-                      max-w-2xl measure lede
-                    `}
-                >
-                    Thoughts on engineering, craft, and life.
+            <header className="page-header">
+                <h1 className="page-title">Blog</h1>
+                <p className="page-lede">
+                    Full archive — newest first. Kept as a record of how I grew
+                    and what I cared about over the years.
                 </p>
             </header>
 
             {years.map((year) => (
-                <section key={year} className="mb-6">
-                    <div
-                        className={`
-                          sticky top-0 z-10 backdrop-blur
-                          supports-[backdrop-filter]:border-b-1
-                          border-neutral-200/50
-                          dark:border-neutral-950/25
-                          py-1 -mx-4 px-4
-                          md:mx-0 md:px-0
-                        `}
-                    >
-                        <h2 className="text-sm font-medium text-neutral-500">
-                            {year}
-                        </h2>
-                    </div>
-                    <ul
-                        className={`
-                          divide-y-1 divide-neutral-200/50
-                          dark:divide-neutral-950/25
-                        `}
-                    >
-                        {groups[year].map((post) => (
-                            <li key={post._id} className="py-4">
-                                <Link
-                                    href={`/blog/${post.slug}`}
-                                    className={`
-                                      no-underline
-                                      hover:underline
-                                    `}
+                <section key={year} className="section-block">
+                    <div className="year-label">{year}</div>
+                    <ul className="row-list">
+                        {groups[year].map((post) => {
+                            const body = (
+                                <div
+                                    className={
+                                        post.image
+                                            ? `
+                                              media-row media-row--in-list
+                                              has-media
+                                            `
+                                            : "media-row media-row--in-list"
+                                    }
                                 >
-                                    <div
-                                        className={`
-                                          flex items-baseline justify-between
-                                          gap-4
-                                        `}
-                                    >
-                                        <div className="text-base font-semibold">
-                                            {post.title}
+                                    <div className="media-row__body">
+                                        <div className="row-top">
+                                            <span className="row-title">
+                                                {post.title}
+                                                {post.external ? " ↗" : ""}
+                                            </span>
+                                            <time className="row-meta">
+                                                {getFormattedDate(
+                                                    post.createdAt,
+                                                )}
+                                            </time>
                                         </div>
-                                        <time
-                                            className={`
-                                              text-sm text-neutral-500
-                                              dark:text-neutral-400
-                                              whitespace-nowrap
-                                            `}
-                                        >
-                                            {getFormattedDate(post.createdAt)}
-                                        </time>
+                                        {post.description && (
+                                            <p className="row-desc">
+                                                {post.description}
+                                            </p>
+                                        )}
                                     </div>
-                                    {post.blogDescription && (
-                                        <p
-                                            className={`
-                                              text-sm text-neutral-600
-                                              dark:text-neutral-600
-                                              mt-1 measure
-                                            `}
+                                    {post.image && (
+                                        <span
+                                            className="media-row__media"
+                                            aria-hidden
                                         >
-                                            {post.blogDescription}
-                                        </p>
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                            <img
+                                                src={post.image}
+                                                alt=""
+                                                loading="lazy"
+                                                decoding="async"
+                                            />
+                                        </span>
                                     )}
-                                </Link>
-                            </li>
-                        ))}
+                                </div>
+                            );
+
+                            return (
+                                <li key={post.id}>
+                                    {post.external ? (
+                                        <a
+                                            href={post.href}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="row-link"
+                                        >
+                                            {body}
+                                        </a>
+                                    ) : (
+                                        <Link
+                                            href={post.href}
+                                            className="row-link"
+                                            prefetch
+                                        >
+                                            {body}
+                                        </Link>
+                                    )}
+                                </li>
+                            );
+                        })}
                     </ul>
                 </section>
             ))}
 
-            {posts.length === 0 && (
-                <p
-                    className={`
-                      text-neutral-600
-                      dark:text-neutral-400
-                    `}
-                >
-                    No posts yet.
-                </p>
-            )}
+            {posts.length === 0 && <p className="muted">No posts yet.</p>}
         </div>
     );
 }

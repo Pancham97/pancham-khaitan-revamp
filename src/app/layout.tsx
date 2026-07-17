@@ -1,21 +1,32 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import MinimalLayout from "@/components/MinimalLayout";
-import { GeistSans } from "geist/font/sans";
+import SiteChrome from "@/components/SiteChrome";
 import { GeistMono } from "geist/font/mono";
 
+const defaultOg = "https://panchamkhaitan.com/api/og?title=Pancham%20Khaitan";
+
+const siteDescription =
+    "Software engineer at SingleStore. Also sings Hindustani classical, plays keys, and clicks photos on evening walks.";
+
 export const metadata: Metadata = {
-    title: "Pancham Khaitan",
-    description:
-        "Pancham Khaitan is a software engineer who likes making things. He is also fond of music.",
+    title: {
+        default: "Pancham Khaitan",
+        template: "%s | Pancham Khaitan",
+    },
+    description: siteDescription,
+    alternates: {
+        types: {
+            "application/rss+xml": "https://panchamkhaitan.com/feed.xml",
+        },
+    },
     openGraph: {
         title: "Pancham Khaitan",
-        description:
-            "Pancham Khaitan is a software engineer who likes making things. He is also fond of music.",
+        description: siteDescription,
         url: "https://panchamkhaitan.com",
+        siteName: "Pancham Khaitan",
         images: [
             {
-                url: "https://pancham-khaitan.s3.ap-south-1.amazonaws.com/portfolio/images/a57c22de-2b23-458f-8c9f-3d9514e87d93.jpg",
+                url: defaultOg,
                 width: 1200,
                 height: 630,
             },
@@ -24,11 +35,9 @@ export const metadata: Metadata = {
     twitter: {
         card: "summary_large_image",
         title: "Pancham Khaitan",
-        description:
-            "Pancham Khaitan is a software engineer who likes making things. He is also fond of music.",
-        images: [
-            "https://pancham-khaitan.s3.ap-south-1.amazonaws.com/portfolio/images/a57c22de-2b23-458f-8c9f-3d9514e87d93.jpg",
-        ],
+        description: siteDescription,
+        images: [defaultOg],
+        creator: "@PanchamKhaitan",
     },
     icons: {
         icon: "/favicon.ico",
@@ -47,22 +56,18 @@ export default function RootLayout({
             suppressHydrationWarning
             data-theme="light"
             style={{ colorScheme: "light" }}
-            className={`
-              ${GeistSans.variable}
-              ${GeistMono.variable}
-            `}
+            className={GeistMono.variable}
         >
             <head>
                 <meta name="color-scheme" content="light" />
-                {/* Prevent theme flash: set initial theme before hydration */}
                 <script
                     dangerouslySetInnerHTML={{
-                        __html: "(() => { try { const root = document.documentElement; const meta = document.querySelector('meta[name=\"color-scheme\"]'); const apply = (value) => { const theme = value === 'dark' ? 'dark' : 'light'; root.classList.toggle('dark', theme === 'dark'); root.setAttribute('data-theme', theme); root.style.colorScheme = theme; if (meta) { meta.setAttribute('content', theme); } try { localStorage.setItem('theme', theme); } catch(_) {} }; const stored = localStorage.getItem('theme'); apply(stored === 'dark' ? 'dark' : 'light'); window.__setTheme = apply; } catch(_) {} })();",
+                        __html: "(()=>{try{const r=document.documentElement,m=document.querySelector('meta[name=\"color-scheme\"]');const a=v=>{const t=v==='dark'?'dark':'light';r.classList.toggle('dark',t==='dark');r.setAttribute('data-theme',t);r.style.colorScheme=t;if(m)m.setAttribute('content',t);try{localStorage.setItem('theme',t)}catch(e){}};a(localStorage.getItem('theme')==='dark'?'dark':'light');window.__setTheme=a}catch(e){}})();",
                     }}
                 />
             </head>
-            <body className="antialiased">
-                <MinimalLayout>{children}</MinimalLayout>
+            <body>
+                <SiteChrome>{children}</SiteChrome>
             </body>
         </html>
     );

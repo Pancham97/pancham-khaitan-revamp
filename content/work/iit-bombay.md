@@ -8,8 +8,8 @@ heroImageAlt: "IIT Bombay campus building"
 heroImageCaption: "IIT Bombay - where academic excellence meets innovation"
 imageLink: "https://qph.cf2.quoracdn.net/main-qimg-b9cd01591303fe0505f967efb5406d4a-lq"
 imageSource: "Quora"
-isFeatured: true
-isHidden: false
+isFeatured: false
+isHidden: true
 context: "Internship"
 skills: "Statistical machine learning,Code optimisation"
 createdAt: "2017-01-01"

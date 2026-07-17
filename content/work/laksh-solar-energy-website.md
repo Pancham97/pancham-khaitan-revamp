@@ -3,13 +3,13 @@ title: "Laksh Solar Energy Website"
 shortDescription: "Developing a comprehensive website for a solar energy company"
 startDate: "2018-03-01"
 endDate: "Apr 2018"
-heroImage: "https://assets.sunchay.com/private/uploads/01JGE47ST3BK4846N6WNA8SWGX/01K1QZKRR41S3S7AP8A6K410P0.png"
+heroImage: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1200&q=80"
 heroImageAlt: "Solar panels on a rooftop with blue sky"
 heroImageCaption: "Solar energy - powering the future sustainably"
 imageLink: "https://unsplash.com/photos/solar-panels-on-green-field-513dBrMJ_5w?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
 imageSource: "Unsplash"
-isFeatured: true
-isHidden: false
+isFeatured: false
+isHidden: true
 context: "Freelance project"
 skills: "Web development, Responsive design, SEO optimization, Lead generation"
 createdAt: "2018-03-01"

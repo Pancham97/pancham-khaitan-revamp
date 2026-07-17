@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import CommandPaletteItem from "./CommandPaletteItem";
@@ -16,20 +16,48 @@ type Item = {
     action?: () => void;
 };
 
+const FOCUSABLE_SELECTOR = [
+    "a[href]",
+    "button:not([disabled])",
+    "input:not([disabled])",
+    "textarea:not([disabled])",
+    "select:not([disabled])",
+    '[tabindex]:not([tabindex="-1"])',
+].join(",");
+
+function getFocusableElements(container: HTMLElement | null) {
+    if (!container) {
+        return [];
+    }
+
+    return Array.from(
+        container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+    ).filter((node) => node.offsetParent !== null && node.tabIndex >= 0);
+}
+
 function applyTheme(theme: Theme) {
-    const root = document.documentElement;
-    if (theme === "dark") {
-        root.classList.add("dark");
-        root.setAttribute("data-theme", "dark");
+    const setThemeScript = (
+        window as Window & { __setTheme?: (value: Theme) => void }
+    ).__setTheme;
+
+    if (typeof setThemeScript === "function") {
+        setThemeScript(theme);
     } else {
-        root.classList.remove("dark");
-        root.setAttribute("data-theme", "light");
+        const root = document.documentElement;
+        if (theme === "dark") {
+            root.classList.add("dark");
+            root.setAttribute("data-theme", "dark");
+        } else {
+            root.classList.remove("dark");
+            root.setAttribute("data-theme", "light");
+        }
+        root.style.colorScheme = theme;
+        const meta = document.querySelector('meta[name="color-scheme"]');
+        if (meta) {
+            meta.setAttribute("content", theme);
+        }
     }
-    root.style.colorScheme = theme;
-    const meta = document.querySelector('meta[name="color-scheme"]');
-    if (meta) {
-        meta.setAttribute("content", theme);
-    }
+
     try {
         localStorage.setItem("theme", theme);
     } catch {}
@@ -44,13 +72,22 @@ export default function CommandPalette() {
     const [open, setOpen] = useState(false);
     const [q, setQ] = useState("");
     const inputRef = useRef<HTMLInputElement | null>(null);
+    const dialogRef = useRef<HTMLDivElement | null>(null);
     const listRef = useRef<HTMLDivElement | null>(null);
+    const previouslyFocusedRef = useRef<HTMLElement | null>(null);
     const router = useRouter();
     const [cursor, setCursor] = useState(0);
     const prevCursorRef = useRef(0);
     const [theme, setTheme] = useState<Theme>("light");
     const [showTopShadow, setShowTopShadow] = useState(false);
     const [showBottomShadow, setShowBottomShadow] = useState(false);
+
+    const openPalette = useCallback(() => {
+        setQ("");
+        setCursor(0);
+        prevCursorRef.current = 0;
+        setOpen(true);
+    }, []);
 
     // Initialize theme from localStorage
     useEffect(() => {
@@ -69,7 +106,7 @@ export default function CommandPalette() {
         window.addEventListener("theme-change", handleThemeChange);
         return () =>
             window.removeEventListener("theme-change", handleThemeChange);
-    }, []);
+    }, [openPalette]);
 
     const toggleTheme = () => {
         const next: Theme = theme === "dark" ? "light" : "dark";
@@ -78,16 +115,67 @@ export default function CommandPalette() {
     };
 
     const BASE_ITEMS: Item[] = [
-        { label: "Home", href: "/", shortcut: "H" },
+        { label: "Index", href: "/", shortcut: "H" },
         { label: "Work", href: "/work", shortcut: "W" },
+        { label: "Projects", href: "/projects", shortcut: "P" },
+        { label: "Gear", href: "/gear", shortcut: "E" },
         { label: "Blog", href: "/blog", shortcut: "B" },
-        { label: "Updates", href: "/updates", shortcut: "U" },
-        { label: "Notes", href: "/notes", shortcut: "N" },
+        { label: "Tweets", href: "/tweets", shortcut: "T" },
+        { label: "Now", href: "/now", shortcut: "O" },
         { label: "About", href: "/about", shortcut: "A" },
         { label: "Contact", href: "/contact", shortcut: "C" },
         {
-            label: "Old site (v0)",
-            href: "https://v0.panchamkhaitan.com",
+            label: "Helios",
+            href: "/work/helios",
+            meta: "Work",
+        },
+        {
+            label: "Aura Analyst",
+            href: "/work/aura-analyst",
+            meta: "Work",
+        },
+        {
+            label: "Steno (Mac)",
+            href: "https://apps.apple.com/in/app/steno-dictation/id6762076728?mt=12",
+            external: true,
+            meta: "Projects",
+        },
+        {
+            label: "Varta",
+            href: "https://varta.work",
+            external: true,
+            meta: "Projects",
+        },
+        {
+            label: "Sunchay",
+            href: "https://x.com/SunchayApp",
+            external: true,
+            meta: "Projects",
+        },
+        {
+            label: "RSS",
+            href: "/feed.xml",
+            meta: "Follow",
+        },
+        {
+            label: "Substack",
+            href: "https://panchamk.substack.com",
+            external: true,
+            meta: "Follow",
+        },
+        {
+            label: "X / Twitter",
+            href: "https://x.com/PanchamKhaitan",
+            external: true,
+        },
+        {
+            label: "Instagram",
+            href: "https://www.instagram.com/pancham.khaitan/",
+            external: true,
+        },
+        {
+            label: "GitHub",
+            href: "https://github.com/Pancham97",
             external: true,
         },
     ];
@@ -107,7 +195,7 @@ export default function CommandPalette() {
         const onKey = (e: KeyboardEvent) => {
             if (e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey)) {
                 e.preventDefault();
-                setOpen(true);
+                openPalette();
             }
             if (e.key === "Escape") {
                 setOpen(false);
@@ -115,22 +203,79 @@ export default function CommandPalette() {
         };
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
-    }, []);
+    }, [openPalette]);
 
     useEffect(() => {
-        const onExternalOpen = () => setOpen(true);
+        const onExternalOpen = () => openPalette();
         window.addEventListener("command-palette:open", onExternalOpen);
         return () =>
             window.removeEventListener("command-palette:open", onExternalOpen);
-    }, []);
+    }, [openPalette]);
 
     useEffect(() => {
-        if (open) {
-            setTimeout(() => inputRef.current?.focus(), 0);
-        } else {
+        if (!open) {
             setQ("");
             setCursor(0);
+            return;
         }
+
+        previouslyFocusedRef.current =
+            document.activeElement instanceof HTMLElement
+                ? document.activeElement
+                : null;
+
+        const focusTimer = window.setTimeout(
+            () => inputRef.current?.focus(),
+            0,
+        );
+
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                event.preventDefault();
+                setOpen(false);
+                return;
+            }
+
+            if (event.key !== "Tab") {
+                return;
+            }
+
+            const focusable = getFocusableElements(dialogRef.current);
+            if (focusable.length === 0) {
+                event.preventDefault();
+                inputRef.current?.focus();
+                return;
+            }
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            const active = document.activeElement;
+
+            if (!dialogRef.current?.contains(active)) {
+                event.preventDefault();
+                first.focus();
+                return;
+            }
+
+            if (event.shiftKey && active === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && active === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        };
+
+        document.addEventListener("keydown", onKeyDown);
+        return () => {
+            window.clearTimeout(focusTimer);
+            document.removeEventListener("keydown", onKeyDown);
+
+            const previouslyFocused = previouslyFocusedRef.current;
+            if (previouslyFocused?.isConnected) {
+                previouslyFocused.focus();
+            }
+        };
     }, [open]);
 
     const [results, setResults] = useState<Item[]>([]);
@@ -177,18 +322,26 @@ export default function CommandPalette() {
         ? [...filteredBase, ...filteredActions, ...results]
         : [...BASE_ITEMS, ...ACTION_ITEMS];
 
-    const grouped = term
-        ? allFilteredItems.reduce<Record<string, Item[]>>((acc, it) => {
-            const k = it.meta || "Other";
-            (acc[k] ||= []).push(it);
-            return acc;
-        }, {})
-        : ({ Navigate: BASE_ITEMS, Actions: ACTION_ITEMS } as Record<
-              string,
-              Item[]
-          >);
+    const grouped: Record<string, Item[]> = term
+        ? {}
+        : { Navigate: BASE_ITEMS, Actions: ACTION_ITEMS };
+    if (term) {
+        for (const item of allFilteredItems) {
+            const key = item.meta || "Other";
+            (grouped[key] ||= []).push(item);
+        }
+    }
     const groupOrder = term
-        ? ["Navigate", "Action", "Work", "Blog", "Notes", "Updates", "Other"]
+        ? [
+            "Navigate",
+            "Action",
+            "Work",
+            "Blog",
+            "Substack",
+            "Notes",
+            "Log",
+            "Other",
+        ]
         : ["Navigate", "Actions"];
 
     // Rebuild items in the same order as they appear in the grouped display
@@ -293,22 +446,28 @@ export default function CommandPalette() {
 
     return (
         <div
-            role="dialog"
-            aria-modal="true"
-            className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm"
+            className="fixed inset-0 z-[120] bg-black/70 backdrop-blur-sm"
             onClick={() => setOpen(false)}
         >
             <div
+                ref={dialogRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="command-palette-title"
                 className={`
-                  mx-auto max-w-xl mt-24 rounded-xl border border-neutral-200/80
+                  mx-3 max-w-xl mt-16 rounded-xl border border-neutral-200/80
                   bg-white/95 ring-1 ring-inset ring-black/10
                   shadow-[0_35px_80px_rgba(0,0,0,0.45)] backdrop-blur-md
                   overflow-hidden
+                  sm:mx-auto sm:mt-24
                   dark:border-white/10 dark:bg-black/92 dark:ring-white/10
                   dark:shadow-[0_45px_100px_rgba(0,0,0,0.65)]
                 `}
                 onClick={(e) => e.stopPropagation()}
             >
+                <h2 id="command-palette-title" className="sr-only">
+                    Command palette
+                </h2>
                 <div
                     className={`
                       flex items-center gap-3 px-4 py-3 rounded-t-xl
@@ -338,6 +497,7 @@ export default function CommandPalette() {
                           focus:border-none! focus:outline-none
                         `}
                         role="combobox"
+                        aria-label="Search site content and commands"
                         aria-expanded="true"
                         aria-controls="command-palette-list"
                         aria-activedescendant={
@@ -374,9 +534,9 @@ export default function CommandPalette() {
                                 <div key={group} className="mb-1 space-y-1">
                                     <div
                                         className={`
-                                          px-4 pt-3 pb-1 text-[11px]
-                                          font-semibold uppercase
-                                          tracking-[0.28em] text-neutral-500
+                                          px-4 pt-3 pb-1 text-xs font-semibold
+                                          uppercase tracking-[0.2em]
+                                          text-neutral-500
                                           dark:text-neutral-400
                                         `}
                                     >
@@ -408,6 +568,7 @@ export default function CommandPalette() {
                                                     isActive={isActive}
                                                     absIdx={absIdx}
                                                     onSelect={onSelect}
+                                                    onActive={setCursor}
                                                     theme={theme}
                                                 />
                                             );
@@ -445,8 +606,7 @@ export default function CommandPalette() {
                       dark:bg-white/10
                       border-t border-neutral-200/80
                       dark:border-white/10
-                      flex items-center justify-between text-[11px]
-                      text-neutral-500
+                      flex items-center justify-between text-xs text-neutral-500
                       dark:text-neutral-300
                     `}
                 >
