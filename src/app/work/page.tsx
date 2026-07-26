@@ -1,8 +1,10 @@
 import { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { getAllWork } from "@/lib/server-queries";
 import { getFormattedDate } from "@/lib/formatDate";
-import { CAREER, SITE } from "@/data/site";
+import { CAREER, SITE, WORK_PROOFS } from "@/data/site";
+import PageBridge from "@/components/PageBridge";
 
 export const metadata: Metadata = {
     title: "Work",
@@ -49,17 +51,86 @@ export default async function WorkPage() {
             <header className="page-header">
                 <h1 className="page-title">Work</h1>
                 <p className="page-lede">
-                    Career first. Case studies sit under the job they belong to.
+                    Day job and the products I help ship. Side projects live on{" "}
+                    <Link href="/projects">Projects</Link>.
                 </p>
             </header>
 
             <section
-                className="career-section"
+                className="section-block"
+                aria-labelledby="proofs-heading"
+                style={{ marginBottom: "var(--space-7)" }}
+            >
+                <div className="section-head">
+                    <p className="section-kicker" aria-hidden>
+                        01
+                    </p>
+                    <h2 id="proofs-heading" className="section-title">
+                        Recent
+                    </h2>
+                </div>
+                <ul className="proof-grid">
+                    {WORK_PROOFS.map((item) => {
+                        const body = (
+                            <>
+                                <div className="proof-grid__media">
+                                    <Image
+                                        src={item.image}
+                                        alt={item.imageAlt}
+                                        width={640}
+                                        height={400}
+                                        className="proof-grid__img"
+                                        sizes="(max-width: 639px) 100vw, 20rem"
+                                    />
+                                </div>
+                                <div className="proof-grid__body">
+                                    <span className="row-title">
+                                        {item.title}
+                                        {"external" in item && item.external
+                                            ? " ↗"
+                                            : ""}
+                                    </span>
+                                    <p className="row-desc">{item.blurb}</p>
+                                </div>
+                            </>
+                        );
+                        return (
+                            <li key={item.title}>
+                                {"external" in item && item.external ? (
+                                    <a
+                                        href={item.href}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="proof-grid__link"
+                                    >
+                                        {body}
+                                    </a>
+                                ) : (
+                                    <Link
+                                        href={item.href}
+                                        className="proof-grid__link"
+                                    >
+                                        {body}
+                                    </Link>
+                                )}
+                            </li>
+                        );
+                    })}
+                </ul>
+            </section>
+
+            <section
+                className="career-section section"
                 aria-labelledby="career-heading"
             >
-                <h2 id="career-heading" className="section-title">
-                    Career
-                </h2>
+                <div className="section-head">
+                    <p className="section-kicker" aria-hidden>
+                        02
+                    </p>
+                    <h2 id="career-heading" className="section-title">
+                        Career
+                    </h2>
+                </div>
                 {CAREER.map((job) => (
                     <article key={job.org} className="career-block">
                         <div className="row-top">
@@ -131,9 +202,14 @@ export default async function WorkPage() {
             </section>
 
             <section className="section" aria-labelledby="cases-heading">
-                <h2 id="cases-heading" className="section-title">
-                    Selected
-                </h2>
+                <div className="section-head">
+                    <p className="section-kicker" aria-hidden>
+                        03
+                    </p>
+                    <h2 id="cases-heading" className="section-title">
+                        Selected
+                    </h2>
+                </div>
                 {years.map((year) => (
                     <div key={year} className="section-block">
                         <div className="year-label">{year}</div>
@@ -172,6 +248,14 @@ export default async function WorkPage() {
                     <p className="muted">Nothing here yet.</p>
                 )}
             </section>
+
+            <PageBridge
+                links={[
+                    { href: "/projects", label: "Projects" },
+                    { href: "/about", label: "About" },
+                    { href: "/now", label: "Now" },
+                ]}
+            />
         </div>
     );
 }

@@ -4,8 +4,8 @@ import { notFound } from "next/navigation";
 import { getNoteBySlug, getAllNotes } from "@/lib/server-queries";
 import { getFormattedDate } from "@/lib/formatDate";
 import ExternalNoteRedirect from "@/components/ExternalNoteRedirect";
-
 import MarkdownRenderer from "@/components/MarkdownRenderer";
+import PageBridge from "@/components/PageBridge";
 
 interface PageProps {
     params: Promise<{
@@ -13,10 +13,8 @@ interface PageProps {
     }>;
 }
 
-// Add revalidation for ISR
-export const revalidate = 3600; // Cache for 1 hour
+export const revalidate = 3600;
 
-// Generate static params for all notes
 export async function generateStaticParams() {
     const notes = await getAllNotes();
 
@@ -38,23 +36,17 @@ export async function generateMetadata({
     }
 
     return {
-        title: `${note.title} | Notes`,
+        title: note.title,
         description: note.excerpt,
         openGraph: {
             title: note.title,
             description: note.excerpt,
-            images: [
-                "https://pancham-khaitan.s3.ap-south-1.amazonaws.com/portfolio/images/a57c22de-2b23-458f-8c9f-3d9514e87d93.jpg",
-            ],
             url: `https://panchamkhaitan.com/notes/${note.slug}`,
         },
         twitter: {
             title: note.title,
             description: note.excerpt,
-            images: [
-                "https://pancham-khaitan.s3.ap-south-1.amazonaws.com/portfolio/images/a57c22de-2b23-458f-8c9f-3d9514e87d93.jpg",
-            ],
-            card: "summary_large_image",
+            card: "summary",
         },
     };
 }
@@ -67,7 +59,6 @@ export default async function NotePage({ params }: PageProps) {
         notFound();
     }
 
-    // If it's an external note, render the redirect component
     if (note.isExternal && note.externalUrl) {
         return (
             <ExternalNoteRedirect
@@ -78,83 +69,34 @@ export default async function NotePage({ params }: PageProps) {
     }
 
     return (
-        <article className="space-y-10">
-            <header className="space-y-3">
-                <h1
-                    className={`
-                      big-headline-text text-black
-                      dark:text-white
-                    `}
-                >
-                    {note.title}
-                </h1>
-                <div
-                    className={`
-                      flex flex-wrap items-center gap-2 text-sm text-custom-grey
-                    `}
-                >
-                    <time dateTime={note.createdAt}>
-                        {getFormattedDate(note.createdAt)}
-                    </time>
+        <article>
+            <header className="page-header">
+                <h1 className="page-title">{note.title}</h1>
+                <p className="page-lede">
+                    {getFormattedDate(note.createdAt)}
                     {note.updatedAt !== note.createdAt && (
-                        <span>Updated {getFormattedDate(note.updatedAt)}</span>
+                        <> · Updated {getFormattedDate(note.updatedAt)}</>
                     )}
-                </div>
+                </p>
             </header>
 
             <MarkdownRenderer
                 content={note.content ?? ""}
-                className={`
-                  prose prose-lg max-w-none text-black
-                  dark:text-white
-                `}
+                className="prose"
             />
 
-            <footer
-                className={`
-                  flex flex-wrap items-center justify-between gap-4 border-t
-                  border-neutral-200 pt-6
-                  dark:border-neutral-800
-                `}
-            >
-                <Link
-                    href="/notes"
-                    className={`
-                      inline-flex items-center transition-colors duration-300
-                      group
-                    `}
-                >
-                    <span
-                        className={`
-                          mr-2 transform transition-transform duration-300
-                          group-hover:-translate-x-2
-                        `}
-                    >
-                        ←
-                    </span>
-                    <span>Back to Notes</span>
+            <PageBridge
+                links={[
+                    { href: "/notes", label: "Notes" },
+                    { href: "/blog", label: "Blog" },
+                    { href: "/about", label: "About" },
+                ]}
+            />
+            <p className="row-extra">
+                <Link href="/notes" className="see-more-link">
+                    ← All notes
                 </Link>
-
-                <Link
-                    href="/blog"
-                    className={`
-                      inline-flex items-center text-black transition-colors
-                      duration-300 group
-                      hover:opacity-80
-                      dark:text-white
-                    `}
-                >
-                    <span>Read Blog Posts</span>
-                    <span
-                        className={`
-                          ml-2 transform transition-transform duration-300
-                          group-hover:translate-x-2
-                        `}
-                    >
-                        →
-                    </span>
-                </Link>
-            </footer>
+            </p>
         </article>
     );
 }

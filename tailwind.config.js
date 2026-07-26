@@ -13,8 +13,23 @@ module.exports = {
                 "phantom-black": "#0a0a0a",
                 "custom-grey": "#6f6f6f",
             },
-            fontFamily: {},
-            /* Mono-friendly floor: never below 16px sitewide */
+            fontFamily: {
+                serif: [
+                    "var(--font-source-serif)",
+                    "Source Serif 4",
+                    "Georgia",
+                    "serif",
+                ],
+                mono: [
+                    "ui-monospace",
+                    "SFMono-Regular",
+                    "Menlo",
+                    "Monaco",
+                    "Consolas",
+                    "monospace",
+                ],
+            },
+            /* Readable floor: never below 16px sitewide */
             fontSize: {
                 xs: ["1rem", { lineHeight: "1.45" }], // 16px
                 sm: ["1.0625rem", { lineHeight: "1.5" }], // 17px

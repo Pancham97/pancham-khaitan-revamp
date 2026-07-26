@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { getAllUpdates } from "@/lib/server-queries";
 import { getFormattedDate } from "@/lib/formatDate";
 import { NOW } from "@/data/site";
+import PageBridge from "@/components/PageBridge";
 
 export const metadata: Metadata = {
     title: "Now",
@@ -81,6 +82,14 @@ export default async function NowPage() {
                     </ul>
                 </section>
             )}
+
+            <PageBridge
+                links={[
+                    { href: "/blog", label: "Blog" },
+                    { href: "/tweets", label: "Tweets" },
+                    { href: "/work", label: "Work" },
+                ]}
+            />
         </div>
     );
 }

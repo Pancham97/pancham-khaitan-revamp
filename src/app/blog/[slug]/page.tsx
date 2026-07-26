@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBlogBySlug, getAllBlogs } from "@/lib/server-queries";
 import { getFormattedDate } from "@/lib/formatDate";
@@ -36,18 +37,21 @@ export async function generateMetadata({
 
     const ogImageUrl = `https://panchamkhaitan.com/api/og?title=${encodeURIComponent(post.title)}`;
 
+    const description = post.blogDescription || post.title;
+
     return {
         title: post.title,
-        description: `${post.blogDescription} | Pancham Khaitan's work`,
+        description,
         openGraph: {
             title: post.title,
-            description: `${post.blogDescription} | Pancham Khaitan's work`,
+            description,
             images: [ogImageUrl],
-            url: `https://panchamkhaitan.com/blog/${post.slug}`,
+            url: `/blog/${post.slug}`,
+            type: "article",
         },
         twitter: {
             title: post.title,
-            description: `${post.blogDescription} | Pancham Khaitan's work`,
+            description,
             images: [ogImageUrl],
             card: "summary_large_image",
         },
@@ -82,6 +86,20 @@ export default async function BlogPostPage({ params }: PageProps) {
             </header>
 
             <MarkdownRenderer content={post.content} className="prose" />
+
+            <p className="row-extra" style={{ marginTop: "var(--space-7)" }}>
+                <Link href="/blog" className="see-more-link">
+                    ← Blog
+                </Link>
+                {" · "}
+                <Link href="/now" className="see-more-link">
+                    Now
+                </Link>
+                {" · "}
+                <Link href="/contact" className="see-more-link">
+                    Contact
+                </Link>
+            </p>
         </article>
     );
 }

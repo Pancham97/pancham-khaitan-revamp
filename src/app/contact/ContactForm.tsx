@@ -3,6 +3,7 @@
 import React, { useState, useRef, FormEvent } from "react";
 import { Turnstile } from "@marsidev/react-turnstile";
 import validateEmail from "@/lib/validateEmail";
+import { SITE } from "@/data/site";
 
 interface FormError {
     email: string;
@@ -20,6 +21,7 @@ type ContactFormProps = {
 export default function ContactForm({ compact = false }: ContactFormProps) {
     const [showAlert, setShowAlert] = useState(false);
     const [serverError, setServerError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     const [error, setError] = useState<FormError>({ email: "" });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [turnstileToken, setTurnstileToken] = useState<string>("");
@@ -30,10 +32,13 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
     const visitorEmail = useRef<HTMLInputElement>(null);
     const visitorSubject = useRef<HTMLInputElement>(null);
     const visitorMessage = useRef<HTMLTextAreaElement>(null);
+    const successRef = useRef<HTMLDivElement>(null);
+    const alertRef = useRef<HTMLDivElement>(null);
 
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        event.target.classList.remove("border-red-500");
-        setError({ email: "" });
+    const handleEmailChange = () => {
+        if (error.email) {
+            setError({ email: "" });
+        }
     };
 
     const handleContactFormSubmit = async (
@@ -44,14 +49,17 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
         const emailValue = visitorEmail.current?.value || "";
 
         if (!validateEmail(emailValue)) {
-            visitorEmail.current?.classList.add("border-red-500");
-            setError({ email: "This email is not valid. Kindly check again." });
+            setError({ email: "Enter a valid email address." });
+            visitorEmail.current?.focus();
             return;
         }
 
         if (!isTurnstileConfigured) {
             setShowAlert(true);
             setServerError(true);
+            setErrorMessage(
+                `Verification is not available. Email ${SITE.email} instead.`,
+            );
             return;
         }
 
@@ -62,7 +70,9 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
 
         setIsSubmitting(true);
         setServerError(false);
+        setErrorMessage("");
         setTurnstileError(false);
+        setShowAlert(false);
 
         try {
             const response = await fetch("/api/contact", {
@@ -79,6 +89,9 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
             });
 
             if (!response.ok) {
+                if (response.status === 429) {
+                    throw new Error("rate_limited");
+                }
                 throw new Error("Failed to send message");
             }
 
@@ -101,15 +114,26 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
             if (visitorMessage.current) {
                 visitorMessage.current.value = "";
             }
+
+            window.requestAnimationFrame(() => {
+                successRef.current?.focus();
+            });
         } catch (err) {
             console.error("Error sending message:", err);
             setShowAlert(true);
             setServerError(true);
+            const isRateLimited =
+                err instanceof Error && err.message === "rate_limited";
+            setErrorMessage(
+                isRateLimited
+                    ? `Too many messages. Wait a bit, or email ${SITE.email} directly.`
+                    : `Try again in a bit, or email ${SITE.email} directly.`,
+            );
+            window.requestAnimationFrame(() => {
+                alertRef.current?.focus();
+            });
         } finally {
             setIsSubmitting(false);
-            setTimeout(() => {
-                setShowAlert(false);
-            }, 20000);
         }
     };
 
@@ -127,9 +151,10 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
 
             {showAlert && !serverError && (
                 <div
-                    className="row-list"
-                    style={{ marginBottom: "1.5rem", padding: "0.85rem 0" }}
+                    ref={successRef}
+                    className="form-banner form-banner--ok"
                     role="status"
+                    tabIndex={-1}
                 >
                     <strong className="row-title">Message sent.</strong>
                     <p className="row-desc">I will get back to you soon.</p>
@@ -137,34 +162,33 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
             )}
 
             {showAlert && serverError && (
-                <div style={{ marginBottom: "1.5rem" }} role="alert">
+                <div
+                    ref={alertRef}
+                    className="form-banner form-banner--error"
+                    role="alert"
+                    tabIndex={-1}
+                >
                     <strong className="row-title">Something went wrong.</strong>
                     <p className="row-desc">
-                        Try again or email{" "}
-                        <a href="mailto:hello@panchamkhaitan.com">
-                            hello@panchamkhaitan.com
-                        </a>
-                        .
+                        {errorMessage || (
+                            <>
+                                Try again in a bit, or email{" "}
+                                <a href={`mailto:${SITE.email}`}>
+                                    {SITE.email}
+                                </a>{" "}
+                                directly.
+                            </>
+                        )}
                     </p>
                 </div>
             )}
 
             <form
                 onSubmit={handleContactFormSubmit}
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "1.25rem",
-                }}
+                className="contact-form"
+                noValidate
             >
-                <div
-                    style={{
-                        display: "grid",
-                        gap: "1.25rem",
-                        gridTemplateColumns:
-                            "repeat(auto-fit, minmax(12rem, 1fr))",
-                    }}
-                >
+                <div className="contact-form__row">
                     <div>
                         <label htmlFor="firstName">First name</label>
                         <input
@@ -172,6 +196,7 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
                             type="text"
                             ref={visitorFirstName}
                             name="first-name"
+                            autoComplete="given-name"
                             required
                         />
                     </div>
@@ -182,6 +207,7 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
                             type="text"
                             ref={visitorLastName}
                             name="last-name"
+                            autoComplete="family-name"
                             required
                         />
                     </div>
@@ -194,14 +220,21 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
                         type="email"
                         ref={visitorEmail}
                         name="email"
+                        autoComplete="email"
+                        inputMode="email"
                         required
-                        onChange={handleInputChange}
+                        aria-invalid={error.email ? true : undefined}
+                        aria-describedby={
+                            error.email ? "email-error" : undefined
+                        }
+                        onChange={handleEmailChange}
+                        className={error.email ? "is-invalid" : undefined}
                     />
-                    {error.email && (
-                        <p className="row-desc" style={{ color: "inherit" }}>
+                    {error.email ? (
+                        <p id="email-error" className="form-field-error" role="alert">
                             {error.email}
                         </p>
-                    )}
+                    ) : null}
                 </div>
 
                 <div>
@@ -211,6 +244,7 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
                         type="text"
                         ref={visitorSubject}
                         name="subject"
+                        autoComplete="off"
                         required
                     />
                 </div>
@@ -246,23 +280,22 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
                     ) : (
                         <p className="row-desc">
                             Verification is not available. Email{" "}
-                            <a href="mailto:hello@panchamkhaitan.com">
-                                hello@panchamkhaitan.com
-                            </a>{" "}
+                            <a href={`mailto:${SITE.email}`}>{SITE.email}</a>{" "}
                             instead.
                         </p>
                     )}
-                    {turnstileError && (
-                        <p className="row-desc">
+                    {turnstileError ? (
+                        <p className="form-field-error" role="alert">
                             Complete the verification to continue.
                         </p>
-                    )}
+                    ) : null}
                 </div>
 
                 <div>
                     <button
                         type="submit"
                         disabled={isSubmitting || !isTurnstileConfigured}
+                        aria-busy={isSubmitting}
                     >
                         {isSubmitting ? "Sending…" : "Send message"}
                     </button>
@@ -272,9 +305,7 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
             {!compact && (
                 <p className="row-extra muted" style={{ marginTop: "1.5rem" }}>
                     Or write directly to{" "}
-                    <a href="mailto:hello@panchamkhaitan.com">
-                        hello@panchamkhaitan.com
-                    </a>
+                    <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
                 </p>
             )}
         </div>

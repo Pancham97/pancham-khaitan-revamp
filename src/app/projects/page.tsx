@@ -5,6 +5,7 @@ import {
     PROJECT_STATUS_LABEL,
     type ProjectStatus,
 } from "@/data/site";
+import PageBridge from "@/components/PageBridge";
 
 export const metadata: Metadata = {
     title: "Projects",
@@ -112,6 +113,14 @@ export default function ProjectsPage() {
                     </ul>
                 </section>
             ))}
+
+            <PageBridge
+                links={[
+                    { href: "/work", label: "Work" },
+                    { href: "/gear", label: "Gear" },
+                    { href: "/about", label: "About" },
+                ]}
+            />
         </div>
     );
 }

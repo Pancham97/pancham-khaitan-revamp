@@ -1,10 +1,20 @@
 import { Metadata } from "next";
 import ContactForm from "./ContactForm";
 import { SITE, SOCIALS } from "@/data/site";
+import PageBridge from "@/components/PageBridge";
 
 export const metadata: Metadata = {
     title: "Contact",
     description: `Say hi to ${SITE.name}.`,
+    openGraph: {
+        title: "Contact",
+        description: `Say hi to ${SITE.name}. Software, music, photos, weird ideas.`,
+        url: "/contact",
+    },
+    twitter: {
+        title: "Contact",
+        description: `Say hi to ${SITE.name}.`,
+    },
 };
 
 export default function ContactPage() {
@@ -53,6 +63,14 @@ export default function ContactPage() {
                 </p>
                 <ContactForm compact />
             </section>
+
+            <PageBridge
+                links={[
+                    { href: "/about", label: "About" },
+                    { href: "/work", label: "Work" },
+                    { href: "/", label: "Home" },
+                ]}
+            />
         </div>
     );
 }

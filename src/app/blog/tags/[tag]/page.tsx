@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { getBlogsByTag } from "@/lib/server-queries";
 import { getFormattedDate } from "@/lib/formatDate";
+import PageBridge from "@/components/PageBridge";
 
 interface PageProps {
     params: Promise<{
@@ -9,13 +10,18 @@ interface PageProps {
     }>;
 }
 
-export const metadata: Metadata = {
-    title: "Tags",
-    description: "Blog posts filtered by tag.",
-};
+export async function generateMetadata({
+    params,
+}: PageProps): Promise<Metadata> {
+    const { tag } = await params;
+    const decodedTag = decodeURIComponent(tag);
+    return {
+        title: `Tag: ${decodedTag}`,
+        description: `Blog posts tagged “${decodedTag}”.`,
+    };
+}
 
-// Add revalidation for ISR
-export const revalidate = 60; // Cache for 60 seconds
+export const revalidate = 60;
 
 export default async function BlogTagPage({ params }: PageProps) {
     const { tag } = await params;
@@ -23,66 +29,62 @@ export default async function BlogTagPage({ params }: PageProps) {
     const decodedTag = decodeURIComponent(tag);
 
     return (
-        <div className="min-h-screen">
-            <div className="max-w-4xl mx-auto px-4 py-20">
-                {blogPosts.length > 0 ? (
-                    <>
-                        <h1 className="text-4xl font-bold mb-8">
-                            Blog posts containing tag &ldquo;{decodedTag}&rdquo;
-                        </h1>
+        <div>
+            <header className="page-header">
+                <h1 className="page-title">#{decodedTag}</h1>
+                <p className="page-lede">
+                    {blogPosts.length > 0
+                        ? `Posts tagged “${decodedTag}”.`
+                        : `No posts with the tag “${decodedTag}” yet.`}
+                </p>
+            </header>
 
-                        {/* Blog Posts */}
-                        <div className="space-y-12">
-                            {blogPosts.map((post) => (
-                                <article
-                                    key={post._id}
-                                    className={`
-                                      border-b-1 border-gray-200 pb-12
-                                      last:border-b-0
-                                    `}
-                                >
-                                    <h2 className="text-3xl font-bold mb-3">
-                                        <Link
-                                            href={`/blog/${post.slug}`}
-                                            className={`
-                                              text-gray-900
-                                              hover:underline
-                                              transition-colors
-                                            `}
-                                        >
-                                            {post.title}
-                                        </Link>
-                                    </h2>
-
-                                    <p className="text-gray-600 mb-4 text-lg">
+            {blogPosts.length > 0 ? (
+                <ul className="row-list">
+                    {blogPosts.map((post) => (
+                        <li key={post._id}>
+                            <Link
+                                href={`/blog/${post.slug}`}
+                                className="row-link"
+                            >
+                                <div className="row-top">
+                                    <span className="row-title">
+                                        {post.title}
+                                    </span>
+                                    <time className="row-meta">
+                                        {getFormattedDate(post.createdAt)}
+                                    </time>
+                                </div>
+                                {post.blogDescription && (
+                                    <p className="row-desc">
                                         {post.blogDescription}
                                     </p>
-
-                                    <div className="text-sm text-gray-500 mb-4">
-                                        {getFormattedDate(post.createdAt)} •
-                                        Time to read: {post.timeToRead}
-                                    </div>
-                                </article>
-                            ))}
-                        </div>
-                    </>
-                ) : (
-                    <div className="text-center">
-                        <h1 className="text-4xl font-bold mb-4">
-                            No blog posts containing tag &ldquo;{decodedTag}
-                            &rdquo; ☹️
-                        </h1>
-                        <p className="text-xl text-gray-600 mb-8">
-                            Adding a custom tag won&apos;t magically make posts
-                            appear. Please go back to{" "}
-                            <Link href="/blog" className="hover:underline">
-                                blog
+                                )}
+                                {post.timeToRead && (
+                                    <p className="row-extra muted">
+                                        {post.timeToRead}
+                                    </p>
+                                )}
                             </Link>
-                            .
-                        </p>
-                    </div>
-                )}
-            </div>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p className="muted">
+                    Try the{" "}
+                    <Link href="/blog" className="see-more-link">
+                        full blog archive →
+                    </Link>
+                </p>
+            )}
+
+            <PageBridge
+                links={[
+                    { href: "/blog", label: "All posts" },
+                    { href: "/now", label: "Now" },
+                    { href: "/", label: "Home" },
+                ]}
+            />
         </div>
     );
 }

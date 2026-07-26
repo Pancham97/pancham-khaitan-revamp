@@ -1,5 +1,5 @@
 /**
- * Central site content for the minimal dossier.
+ * Central site content for the modern-minimal personal site.
  * Edit here to update career, projects, gear, tweets, and socials.
  */
 
@@ -12,10 +12,10 @@ export const SITE = {
     heliosHref: "https://www.singlestore.com/cloud/",
     auraAnalystHref: "https://www.singlestore.com/ai/aura-analyst/",
     email: "hello@panchamkhaitan.com",
-    /** Human-first one-liner for homepage and social cards */
+    /** Human-first one-liner for social cards and meta */
     tagline:
         "I build software. I also sing Hindustani classical, play keys, and click photos on evening walks.",
-    /** Product/context line used under the human lede */
+    /** Product/context line used where a second sentence helps */
     workLine:
         "Right now I work on Helios and Aura Analyst at SingleStore.",
     location: "India",
@@ -67,8 +67,8 @@ export type SiteSection = {
 };
 
 /**
- * Single source of truth for top nav and index "Start here".
- * Edit here once — both stay in sync.
+ * Primary nav — only what belongs on every page.
+ * Secondary routes stay reachable via Cmd+K, footer, and in-page links.
  */
 export const SECTIONS: SiteSection[] = [
     {
@@ -78,16 +78,38 @@ export const SECTIONS: SiteSection[] = [
         key: "w",
     },
     {
-        href: "/projects",
-        label: "Projects",
-        hint: "Side stuff I built",
-        key: "p",
-    },
-    {
         href: "/blog",
         label: "Blog",
         hint: "Writing archive",
         key: "b",
+    },
+    {
+        href: "/notes",
+        label: "Notes",
+        hint: "Study notes and scraps",
+        key: "n",
+    },
+    {
+        href: "/about",
+        label: "About",
+        hint: "Bio and photos",
+        key: "a",
+    },
+    {
+        href: "/contact",
+        label: "Contact",
+        hint: "Say hi",
+        key: "c",
+    },
+];
+
+/** Still public; not in the top nav. Used by sitemap and Cmd+K. */
+export const SECONDARY_SECTIONS: SiteSection[] = [
+    {
+        href: "/projects",
+        label: "Projects",
+        hint: "Side stuff I built",
+        key: "p",
     },
     {
         href: "/gear",
@@ -106,18 +128,6 @@ export const SECTIONS: SiteSection[] = [
         label: "Now",
         hint: "What I am focused on",
         key: "o",
-    },
-    {
-        href: "/about",
-        label: "About",
-        hint: "Bio, photos, notes",
-        key: "a",
-    },
-    {
-        href: "/contact",
-        label: "Contact",
-        hint: "Say hi",
-        key: "c",
     },
 ];
 
@@ -195,7 +205,8 @@ export const PROJECTS = [
     {
         title: "Sunchay",
         status: "building" as const,
-        description: "Side product I am building. More soon.",
+        description:
+            "A side product I am shaping in public. Early, private, and not ready for a landing page yet — progress lives on the X account.",
         href: "https://x.com/SunchayApp",
         kind: "product",
     },
@@ -247,6 +258,12 @@ export const PROJECT_STATUS_LABEL: Record<ProjectStatus, string> = {
 
 /** Jump targets for ⌘K and search (product / org aliases). */
 export const SEARCH_ALIASES = [
+    {
+        label: "Redesigning this site with Grok",
+        href: "/blog/redesigning-this-site-with-grok",
+        meta: "Blog",
+        keywords: ["grok", "redesign", "hacker news", "dossier", "ai"],
+    },
     {
         label: "Helios",
         href: "/work/helios",
@@ -354,7 +371,7 @@ export const GEAR: GearItem[] = [
         category: "Watch",
         note: "Mechanical. Nice when I do not want another screen on my wrist.",
         href: "https://www.seikowatches.com/us-en/products/5sports/srpl79",
-        image: "/gear/seiko.png",
+        image: "/gear/seiko.webp",
     },
     {
         name: "AirPods Pro",
@@ -396,7 +413,7 @@ export const GEAR: GearItem[] = [
         category: "Desk",
         note: "Tan turf mat. Soft, and hides the mess under it.",
         href: "https://www.dailyobjects.com/turf-vegan-leather-desk-mat-tan/dp?f=pid~TURF-LETHER-DESK-MAT-TAN",
-        image: "/gear/deskmat.png",
+        image: "/gear/deskmat.webp",
     },
     {
         name: "Casio CTK-850IN",
@@ -503,12 +520,12 @@ export const TWEETS: TweetItem[] = [
 ];
 
 export const NOW = {
-    updated: "2026-07-17",
+    updated: "2026-07-26",
     items: [
         "Helios and Aura Analyst at SingleStore.",
-        "Building Sunchay.",
+        "Shaping Sunchay in public (early).",
         "Hindustani classical, year 3 of 7.",
-        "Steno for dictation. Evening walks. Rebuilding this site.",
+        "Steno for dictation. Evening walks. This site, redesigned toward modern minimal.",
     ],
 } as const;
 
@@ -522,26 +539,26 @@ export const FOLLOW = [
     },
 ] as const;
 
-/** Portrait / life photos used on index and about. */
+/** Portrait / life photos used on index and about. Prefer compressed WebP. */
 export const PHOTOS = {
     cover: {
         src: "/images/pancham-cover.webp",
         /** JPEG fallback for environments without WebP (rare) */
         srcJpg: "/images/pancham-cover.jpg",
         alt: "Pancham Khaitan smiling in warm light",
-        width: 1200,
-        height: 1500,
+        width: 960,
+        height: 1200,
     },
     swiss: {
-        src: "/images/pancham-khaitan-about-swiss.jpeg",
+        src: "/images/pancham-khaitan-about-swiss.webp",
         alt: "Pancham overlooking a Swiss lakeside town and mountains",
     },
     jaipur: {
-        src: "/images/pancham-in-jaipur.jpeg",
+        src: "/images/pancham-in-jaipur.webp",
         alt: "Pancham at Hawa Mahal in Jaipur at golden hour",
     },
     peak: {
-        src: "/images/pancham-at-peak3000.jpeg",
+        src: "/images/pancham-at-peak3000.webp",
         alt: "Pancham at Peak",
     },
 } as const;

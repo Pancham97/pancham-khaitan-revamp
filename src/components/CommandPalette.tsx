@@ -89,6 +89,14 @@ export default function CommandPalette() {
         setOpen(true);
     }, []);
 
+    const closePalette = useCallback(() => {
+        setOpen(false);
+    }, []);
+
+    const togglePalette = useCallback(() => {
+        setOpen((isOpen) => !isOpen);
+    }, []);
+
     // Initialize theme from localStorage
     useEffect(() => {
         const stored =
@@ -106,7 +114,7 @@ export default function CommandPalette() {
         window.addEventListener("theme-change", handleThemeChange);
         return () =>
             window.removeEventListener("theme-change", handleThemeChange);
-    }, [openPalette]);
+    }, []);
 
     const toggleTheme = () => {
         const next: Theme = theme === "dark" ? "light" : "dark";
@@ -115,15 +123,16 @@ export default function CommandPalette() {
     };
 
     const BASE_ITEMS: Item[] = [
-        { label: "Index", href: "/", shortcut: "H" },
+        { label: "Home", href: "/", shortcut: "H" },
         { label: "Work", href: "/work", shortcut: "W" },
-        { label: "Projects", href: "/projects", shortcut: "P" },
-        { label: "Gear", href: "/gear", shortcut: "E" },
         { label: "Blog", href: "/blog", shortcut: "B" },
-        { label: "Tweets", href: "/tweets", shortcut: "T" },
-        { label: "Now", href: "/now", shortcut: "O" },
+        { label: "Notes", href: "/notes", shortcut: "N" },
         { label: "About", href: "/about", shortcut: "A" },
         { label: "Contact", href: "/contact", shortcut: "C" },
+        { label: "Projects", href: "/projects", shortcut: "P" },
+        { label: "Gear", href: "/gear", shortcut: "E" },
+        { label: "Tweets", href: "/tweets", shortcut: "T" },
+        { label: "Now", href: "/now", shortcut: "O" },
         {
             label: "Helios",
             href: "/work/helios",
@@ -195,15 +204,12 @@ export default function CommandPalette() {
         const onKey = (e: KeyboardEvent) => {
             if (e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey)) {
                 e.preventDefault();
-                openPalette();
-            }
-            if (e.key === "Escape") {
-                setOpen(false);
+                togglePalette();
             }
         };
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
-    }, [openPalette]);
+    }, [togglePalette]);
 
     useEffect(() => {
         const onExternalOpen = () => openPalette();
@@ -224,6 +230,9 @@ export default function CommandPalette() {
                 ? document.activeElement
                 : null;
 
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+
         const focusTimer = window.setTimeout(
             () => inputRef.current?.focus(),
             0,
@@ -232,7 +241,7 @@ export default function CommandPalette() {
         const onKeyDown = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
                 event.preventDefault();
-                setOpen(false);
+                closePalette();
                 return;
             }
 
@@ -268,6 +277,7 @@ export default function CommandPalette() {
 
         document.addEventListener("keydown", onKeyDown);
         return () => {
+            document.body.style.overflow = previousOverflow;
             window.clearTimeout(focusTimer);
             document.removeEventListener("keydown", onKeyDown);
 
@@ -276,7 +286,7 @@ export default function CommandPalette() {
                 previouslyFocused.focus();
             }
         };
-    }, [open]);
+    }, [open, closePalette]);
 
     const [results, setResults] = useState<Item[]>([]);
 
@@ -433,7 +443,7 @@ export default function CommandPalette() {
             item.action();
         } else if (item.href) {
             if (item.external) {
-                window.open(item.href, "_blank", "noreferrer");
+                window.open(item.href, "_blank", "noopener,noreferrer");
             } else {
                 router.push(item.href);
             }
@@ -446,40 +456,28 @@ export default function CommandPalette() {
 
     return (
         <div
-            className="fixed inset-0 z-[120] bg-black/70 backdrop-blur-sm"
-            onClick={() => setOpen(false)}
+            className="cmdk-backdrop"
+            onClick={closePalette}
+            onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                    closePalette();
+                }
+            }}
         >
             <div
                 ref={dialogRef}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="command-palette-title"
-                className={`
-                  mx-3 max-w-xl mt-16 rounded-xl border border-neutral-200/80
-                  bg-white/95 ring-1 ring-inset ring-black/10
-                  shadow-[0_35px_80px_rgba(0,0,0,0.45)] backdrop-blur-md
-                  overflow-hidden
-                  sm:mx-auto sm:mt-24
-                  dark:border-white/10 dark:bg-black/92 dark:ring-white/10
-                  dark:shadow-[0_45px_100px_rgba(0,0,0,0.65)]
-                `}
+                className="cmdk-panel"
                 onClick={(e) => e.stopPropagation()}
             >
                 <h2 id="command-palette-title" className="sr-only">
                     Command palette
                 </h2>
-                <div
-                    className={`
-                      flex items-center gap-3 px-4 py-3 rounded-t-xl
-                      bg-neutral-50/90 border-b border-neutral-200/70
-                      dark:bg-white/10 dark:border-white/10
-                    `}
-                >
+                <div className="cmdk-input-row">
                     <Search
-                        className={`
-                          w-4 h-4 text-neutral-500
-                          dark:text-white/70
-                        `}
+                        className="w-4 h-4"
                         strokeWidth={1.5}
                         aria-hidden="true"
                     />
@@ -488,14 +486,8 @@ export default function CommandPalette() {
                         value={q}
                         onChange={(e) => setQ(e.target.value)}
                         onKeyDown={onKeyDown}
-                        placeholder="Search for pages, posts, or type a command..."
-                        className={`
-                          w-full text-base leading-tight text-neutral-900
-                          placeholder-neutral-400
-                          dark:text-white dark:placeholder-white/50
-                          border-none! bg-transparent! shadow-none!
-                          focus:border-none! focus:outline-none
-                        `}
+                        placeholder="Search pages, posts, or a command…"
+                        className="cmdk-input"
                         role="combobox"
                         aria-label="Search site content and commands"
                         aria-expanded="true"
@@ -510,41 +502,25 @@ export default function CommandPalette() {
                 </div>
 
                 <div className="relative">
-                    {/* Top scroll shadow */}
                     {showTopShadow && (
-                        <div
-                            className={`
-                              absolute top-0 left-0 right-0 h-8 bg-gradient-to-b
-                              from-white/95
-                              dark:from-black/92
-                              to-transparent pointer-events-none z-10
-                            `}
-                        />
+                        <div className="cmdk-scroll-fade-top" aria-hidden />
                     )}
 
                     <div
                         ref={listRef}
                         id="command-palette-list"
                         role="listbox"
-                        className="max-h-96 overflow-y-auto py-1 scroll-smooth"
+                        className="cmdk-list"
                     >
                         {groupOrder
                             .filter((g) => grouped[g] && grouped[g].length)
                             .map((group) => (
-                                <div key={group} className="mb-1 space-y-1">
-                                    <div
-                                        className={`
-                                          px-4 pt-3 pb-1 text-xs font-semibold
-                                          uppercase tracking-[0.2em]
-                                          text-neutral-500
-                                          dark:text-neutral-400
-                                        `}
-                                    >
+                                <div key={group}>
+                                    <div className="cmdk-group-label">
                                         {group}
                                     </div>
-                                    <ul className="space-y-1 px-2">
+                                    <ul>
                                         {grouped[group].map((item, idx) => {
-                                            // compute absolute index for cursor highlighting
                                             const beforeCount = groupOrder
                                                 .slice(
                                                     0,
@@ -577,92 +553,29 @@ export default function CommandPalette() {
                                 </div>
                             ))}
                         {itemsToShow.length === 0 && (
-                            <div
-                                className={`
-                                  px-4 py-8 text-center text-sm text-neutral-400
-                                  dark:text-neutral-500
-                                `}
-                            >
-                                No results found
-                            </div>
+                            <div className="cmdk-empty">No results found</div>
                         )}
                     </div>
 
-                    {/* Bottom scroll shadow */}
                     {showBottomShadow && (
-                        <div
-                            className={`
-                              absolute bottom-0 left-0 right-0 h-8
-                              bg-linear-to-t from-white/95
-                              dark:from-black/92
-                              to-transparent pointer-events-none z-10
-                            `}
-                        />
+                        <div className="cmdk-scroll-fade-bottom" aria-hidden />
                     )}
                 </div>
-                <div
-                    className={`
-                      px-4 py-2 bg-neutral-100/80
-                      dark:bg-white/10
-                      border-t border-neutral-200/80
-                      dark:border-white/10
-                      flex items-center justify-between text-xs text-neutral-500
-                      dark:text-neutral-300
-                    `}
-                >
-                    <div className="flex items-center gap-3">
-                        <span className="flex items-center gap-1">
-                            <kbd
-                                className={`
-                                  px-1.5 py-0.5 rounded border font-mono
-                                  bg-white border-neutral-300 text-xs
-                                  text-neutral-700
-                                  dark:bg-black dark:border-white/15
-                                  dark:text-white/80
-                                `}
-                            >
-                                ↵
-                            </kbd>
-                            <span>to open</span>
+                <div className="cmdk-footer">
+                    <div className="cmdk-footer-hints">
+                        <span className="cmdk-hint">
+                            <kbd className="cmdk-kbd">↵</kbd>
+                            <span>open</span>
                         </span>
-                        <span className="flex items-center gap-1">
-                            <kbd
-                                className={`
-                                  px-1.5 py-0.5 rounded border font-mono
-                                  bg-white border-neutral-300 text-xs
-                                  text-neutral-700
-                                  dark:bg-black dark:border-white/15
-                                  dark:text-white/80
-                                `}
-                            >
-                                ↑
-                            </kbd>
-                            <kbd
-                                className={`
-                                  px-1.5 py-0.5 rounded border font-mono
-                                  bg-white border-neutral-300 text-xs
-                                  text-neutral-700
-                                  dark:bg-black dark:border-white/15
-                                  dark:text-white/80
-                                `}
-                            >
-                                ↓
-                            </kbd>
-                            <span>to navigate</span>
+                        <span className="cmdk-hint">
+                            <kbd className="cmdk-kbd">↑</kbd>
+                            <kbd className="cmdk-kbd">↓</kbd>
+                            <span>move</span>
                         </span>
                     </div>
-                    <span className="flex items-center gap-1">
-                        <kbd
-                            className={`
-                              px-1.5 py-0.5 rounded border font-mono bg-white
-                              border-neutral-300 text-xs text-neutral-700
-                              dark:bg-black dark:border-white/15
-                              dark:text-white/80
-                            `}
-                        >
-                            esc
-                        </kbd>
-                        <span>to close</span>
+                    <span className="cmdk-hint">
+                        <kbd className="cmdk-kbd">esc</kbd>
+                        <span>close</span>
                     </span>
                 </div>
             </div>

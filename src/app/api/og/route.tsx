@@ -3,18 +3,21 @@ import { NextRequest } from "next/server";
 
 export const runtime = "edge";
 
+/** Adobe Source Serif 4 TTFs — classic editorial voice for social cards */
+const SOURCE_SERIF_REGULAR =
+    "https://cdn.jsdelivr.net/gh/adobe-fonts/source-serif@release/TTF/SourceSerif4-Regular.ttf";
+const SOURCE_SERIF_BOLD =
+    "https://cdn.jsdelivr.net/gh/adobe-fonts/source-serif@release/TTF/SourceSerif4-Bold.ttf";
+
 export async function GET(request: NextRequest) {
     const { searchParams } = request.nextUrl;
     const title = searchParams.get("title") || "Pancham Khaitan";
     const label = searchParams.get("label") || "panchamkhaitan.com";
 
-    const geistMono = await fetch(
-        "https://cdn.jsdelivr.net/npm/geist@1.4.2/dist/fonts/geist-mono/GeistMono-Regular.ttf",
-    ).then((res) => res.arrayBuffer());
-
-    const geistMonoBold = await fetch(
-        "https://cdn.jsdelivr.net/npm/geist@1.4.2/dist/fonts/geist-mono/GeistMono-Bold.ttf",
-    ).then((res) => res.arrayBuffer());
+    const [serifRegular, serifBold] = await Promise.all([
+        fetch(SOURCE_SERIF_REGULAR).then((res) => res.arrayBuffer()),
+        fetch(SOURCE_SERIF_BOLD).then((res) => res.arrayBuffer()),
+    ]);
 
     return new ImageResponse(
         (
@@ -28,7 +31,7 @@ export async function GET(request: NextRequest) {
                     backgroundColor: "#f7f4ee",
                     color: "#2a241c",
                     padding: "72px 80px",
-                    fontFamily: "Geist Mono",
+                    fontFamily: "Source Serif 4",
                 }}
             >
                 <div
@@ -49,8 +52,8 @@ export async function GET(request: NextRequest) {
                             backgroundColor: "#2a241c",
                             color: "#f7f4ee",
                             fontSize: 22,
-                            fontFamily: "Geist Mono Bold",
-                            letterSpacing: "0.04em",
+                            fontFamily: "Source Serif 4 Bold",
+                            letterSpacing: "0.02em",
                         }}
                     >
                         pk
@@ -72,10 +75,10 @@ export async function GET(request: NextRequest) {
                     style={{
                         margin: 0,
                         fontSize: title.length > 48 ? 52 : 64,
-                        fontFamily: "Geist Mono Bold",
+                        fontFamily: "Source Serif 4 Bold",
                         fontWeight: 700,
                         lineHeight: 1.15,
-                        letterSpacing: "-0.03em",
+                        letterSpacing: "-0.02em",
                         maxWidth: "92%",
                     }}
                 >
@@ -98,14 +101,14 @@ export async function GET(request: NextRequest) {
             height: 630,
             fonts: [
                 {
-                    name: "Geist Mono",
-                    data: geistMono,
+                    name: "Source Serif 4",
+                    data: serifRegular,
                     weight: 400,
                     style: "normal",
                 },
                 {
-                    name: "Geist Mono Bold",
-                    data: geistMonoBold,
+                    name: "Source Serif 4 Bold",
+                    data: serifBold,
                     weight: 700,
                     style: "normal",
                 },

@@ -4,8 +4,21 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SECTIONS } from "@/data/site";
 
+type SiteNavProps = {
+    /** Extra class on the <nav> */
+    className?: string;
+    /** Called after a link is activated (mobile drawer closes) */
+    onNavigate?: () => void;
+    /** Visual layout */
+    variant?: "desktop" | "mobile";
+};
+
 /** Same sections as the index map — one source of truth. */
-export default function SiteNav() {
+export default function SiteNav({
+    className = "",
+    onNavigate,
+    variant = "desktop",
+}: SiteNavProps) {
     const pathname = usePathname();
 
     const isActive = (href: string) =>
@@ -13,13 +26,24 @@ export default function SiteNav() {
             ? pathname === "/"
             : pathname === href || pathname.startsWith(`${href}/`);
 
+    const isMobile = variant === "mobile";
+
     return (
-        <nav aria-label="Primary" className="site-nav">
+        <nav
+            aria-label="Primary"
+            className={[
+                "site-nav",
+                isMobile ? "site-nav--mobile" : "site-nav--desktop",
+                className,
+            ]
+                .filter(Boolean)
+                .join(" ")}
+        >
             {SECTIONS.map((item, i) => {
                 const active = isActive(item.href);
                 return (
                     <span key={item.href} className="site-nav__unit">
-                        {i > 0 && (
+                        {!isMobile && i > 0 && (
                             <span className="site-nav__sep" aria-hidden>
                                 {" · "}
                             </span>
@@ -33,8 +57,12 @@ export default function SiteNav() {
                                     : "site-nav__link"
                             }
                             aria-current={active ? "page" : undefined}
+                            onClick={() => onNavigate?.()}
                         >
-                            {item.label}
+                            <span className="site-nav__label">{item.label}</span>
+                            {isMobile && item.hint ? (
+                                <span className="site-nav__hint">{item.hint}</span>
+                            ) : null}
                         </Link>
                     </span>
                 );

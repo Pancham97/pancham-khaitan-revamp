@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendContactEmails } from "@/lib/resend";
 import validateEmail from "@/lib/validateEmail";
+import { createRateLimiter, getClientIp } from "@/lib/rate-limit";
 
 const FIELD_LIMITS = {
     firstName: 80,
@@ -9,6 +10,12 @@ const FIELD_LIMITS = {
     subject: 160,
     message: 5000,
 };
+
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const RATE_LIMIT_MAX_BY_IP = 8;
+const RATE_LIMIT_MAX_BY_EMAIL = 4;
+
+const contactRateLimiter = createRateLimiter(RATE_LIMIT_WINDOW_MS);
 
 const hasHeaderLineBreak = (value: string) => /[\r\n]/.test(value);
 
@@ -81,6 +88,25 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        const normalizedEmail = email.toLowerCase();
+        const clientIp = getClientIp(request);
+        const rateLimited =
+            contactRateLimiter.isLimited(
+                `ip:${clientIp}`,
+                RATE_LIMIT_MAX_BY_IP,
+            ) ||
+            contactRateLimiter.isLimited(
+                `email:${normalizedEmail}`,
+                RATE_LIMIT_MAX_BY_EMAIL,
+            );
+
+        if (rateLimited) {
+            return NextResponse.json(
+                { error: "Too many requests. Please try again later." },
+                { status: 429 },
+            );
+        }
+
         // Verify Turnstile token
         if (!turnstileToken) {
             return NextResponse.json(
@@ -126,7 +152,7 @@ export async function POST(request: NextRequest) {
         await sendContactEmails({
             firstName,
             lastName,
-            email,
+            email: normalizedEmail,
             subject,
             message,
         });

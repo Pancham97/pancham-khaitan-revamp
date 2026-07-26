@@ -11,10 +11,15 @@ function escapeXml(value: string): string {
         .replace(/'/g, "&apos;");
 }
 
+/** CDATA must not contain an unescaped `]]>` sequence. */
+function cdata(value: string): string {
+    return `<![CDATA[${value.replace(/]]>/g, "]]]]><![CDATA[>")}]]>`;
+}
+
 export const revalidate = 3600;
 
 export async function GET() {
-    const posts = await getAllWriting();
+    const posts = await getAllWriting({ includeBody: true });
 
     const items = posts
         .slice(0, 40)
@@ -23,19 +28,31 @@ export async function GET() {
                 ? post.href
                 : `${SITE_URL}${post.href.startsWith("/") ? post.href : `/${post.href}`}`;
             const pub = new Date(post.createdAt).toUTCString();
+            const summary = post.description || post.title;
+            const body = post.bodyHtml?.trim();
+
+            // Full HTML body when available; fall back to summary for thin remote items.
+            const htmlBody = body
+                ? body
+                : `<p>${escapeXml(summary)}</p>`;
+            const contentBlock = `      <content:encoded>${cdata(htmlBody)}</content:encoded>`;
+
             return `    <item>
       <title>${escapeXml(post.title)}</title>
       <link>${escapeXml(link)}</link>
       <guid isPermaLink="true">${escapeXml(link)}</guid>
       <pubDate>${pub}</pubDate>
-      <description>${escapeXml(post.description || post.title)}</description>
+      <description>${escapeXml(summary)}</description>
+${contentBlock}
       <category>${post.source === "substack" ? "Substack" : "Blog"}</category>
     </item>`;
         })
         .join("\n");
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0"
+  xmlns:atom="http://www.w3.org/2005/Atom"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Pancham Khaitan</title>
     <link>${SITE_URL}</link>

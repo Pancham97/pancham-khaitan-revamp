@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
+import { Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 import SiteChrome from "@/components/SiteChrome";
-import { GeistMono } from "geist/font/mono";
+
+const sourceSerif = Source_Serif_4({
+    subsets: ["latin"],
+    variable: "--font-source-serif",
+    display: "swap",
+});
 
 const defaultOg = "https://panchamkhaitan.com/api/og?title=Pancham%20Khaitan";
 
@@ -9,21 +15,25 @@ const siteDescription =
     "Software engineer at SingleStore. Also sings Hindustani classical, plays keys, and clicks photos on evening walks.";
 
 export const metadata: Metadata = {
+    metadataBase: new URL("https://panchamkhaitan.com"),
     title: {
         default: "Pancham Khaitan",
         template: "%s | Pancham Khaitan",
     },
     description: siteDescription,
     alternates: {
+        canonical: "/",
         types: {
-            "application/rss+xml": "https://panchamkhaitan.com/feed.xml",
+            "application/rss+xml": "/feed.xml",
         },
     },
     openGraph: {
         title: "Pancham Khaitan",
         description: siteDescription,
-        url: "https://panchamkhaitan.com",
+        url: "/",
         siteName: "Pancham Khaitan",
+        type: "website",
+        locale: "en_US",
         images: [
             {
                 url: defaultOg,
@@ -42,6 +52,7 @@ export const metadata: Metadata = {
     icons: {
         icon: "/favicon.ico",
         shortcut: "/favicon.ico",
+        apple: "/favicon.ico",
     },
 };
 
@@ -56,7 +67,7 @@ export default function RootLayout({
             suppressHydrationWarning
             data-theme="light"
             style={{ colorScheme: "light" }}
-            className={GeistMono.variable}
+            className={sourceSerif.variable}
         >
             <head>
                 <meta name="color-scheme" content="light" />

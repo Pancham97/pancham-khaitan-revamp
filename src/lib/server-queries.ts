@@ -237,10 +237,11 @@ export async function getAllBlogs() {
     const documents = await loadCollection<BlogFrontmatter>("blog");
 
     return documents
-        .map(({ slug, frontmatter }) => ({
+        .map(({ slug, frontmatter, content }) => ({
             _id: slug,
             title: ensureString(frontmatter.title, slug),
             slug,
+            content,
             blogDescription: ensureString(frontmatter.description),
             tags: ensureStringArray(frontmatter.tags),
             createdAt: normalizeDate(frontmatter.createdAt),

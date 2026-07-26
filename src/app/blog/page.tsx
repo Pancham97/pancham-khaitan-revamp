@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { getFormattedDate } from "@/lib/formatDate";
 import { getAllWriting } from "@/lib/writing";
+import PageBridge from "@/components/PageBridge";
 
 export const metadata: Metadata = {
     title: "Blog",
@@ -29,8 +30,7 @@ export default async function BlogPage() {
             <header className="page-header">
                 <h1 className="page-title">Blog</h1>
                 <p className="page-lede">
-                    Full archive — newest first. Kept as a record of how I grew
-                    and what I cared about over the years.
+                    Writing archive — newest first.
                 </p>
             </header>
 
@@ -113,6 +113,14 @@ export default async function BlogPage() {
             ))}
 
             {posts.length === 0 && <p className="muted">No posts yet.</p>}
+
+            <PageBridge
+                links={[
+                    { href: "/tweets", label: "Tweets" },
+                    { href: "/now", label: "Now" },
+                    { href: "/about", label: "About" },
+                ]}
+            />
         </div>
     );
 }

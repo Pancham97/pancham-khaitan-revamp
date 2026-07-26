@@ -44,18 +44,11 @@ export default function WorkDetailClient({ work }: WorkDetailClientProps) {
     return (
         <section>
             {metadata.length > 0 && (
-                <dl
-                    className="row-list"
-                    style={{ marginBottom: "1.75rem", marginTop: "0.5rem" }}
-                >
+                <dl className="meta-list">
                     {metadata.map((item) => (
-                        <div key={item.label} className="row-top" style={{ padding: "0.65rem 0" }}>
-                            <dt className="row-meta" style={{ margin: 0 }}>
-                                {item.label}
-                            </dt>
-                            <dd className="row-title" style={{ margin: 0 }}>
-                                {item.value}
-                            </dd>
+                        <div key={item.label} className="meta-list__row">
+                            <dt className="meta-list__label">{item.label}</dt>
+                            <dd className="meta-list__value">{item.value}</dd>
                         </div>
                     ))}
                 </dl>

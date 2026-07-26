@@ -26,7 +26,7 @@ interface IconProps {
 }
 
 const Icon = ({ meta, theme }: IconProps) => {
-    const cls = "inline-block w-3.5 h-3.5 mr-2 text-neutral-500";
+    const cls = "inline-block w-3.5 h-3.5";
     if (meta === "Work") {
         return (
             <Briefcase className={cls} strokeWidth={1.5} aria-hidden="true" />
@@ -74,35 +74,6 @@ export default function CommandPaletteItem({
     onActive,
     theme,
 }: CommandPaletteItemProps) {
-    const activeButtonClassName =
-        "bg-neutral-900 text-white shadow-sm dark:bg-white/15 dark:text-white dark:shadow-[0_0_0_1px_rgba(255,255,255,0.15)]";
-    const inactiveButtonClassName =
-        "text-neutral-700 hover:bg-neutral-100/80 dark:text-neutral-200 dark:hover:bg-white/10";
-    const activeLabelClassName = "text-white dark:text-white";
-    const inactiveLabelClassName =
-        "text-neutral-600 group-hover:text-neutral-900 dark:text-neutral-300 dark:group-hover:text-white";
-    const activeShortcutClassName =
-        "border-white/70 bg-white/10 text-white dark:border-black/40 dark:bg-black/40 dark:text-white";
-    const inactiveShortcutClassName =
-        "border-neutral-300 bg-neutral-50 text-neutral-700 dark:border-white/15 dark:bg-white/5 dark:text-neutral-200";
-    const buttonClassName = [
-        "group flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg",
-        "px-4 py-2.5 text-left text-sm",
-        "focus-visible:outline-none focus-visible:ring-2",
-        "focus-visible:ring-offset-2 focus-visible:ring-black/40",
-        "focus-visible:ring-offset-transparent",
-        "transition-none!",
-        "dark:focus-visible:ring-white/35",
-        isActive ? activeButtonClassName : inactiveButtonClassName,
-    ].join(" ");
-    const labelClassName = [
-        "inline-flex min-w-0 items-center gap-2",
-        isActive ? activeLabelClassName : inactiveLabelClassName,
-    ].join(" ");
-    const shortcutClassName = [
-        "rounded border px-2 py-1 font-mono text-xs",
-        isActive ? activeShortcutClassName : inactiveShortcutClassName,
-    ].join(" ");
     const ariaLabel = `${item.label}${item.meta ? ` - ${item.meta}` : ""}${
         item.external ? " - opens in new tab" : ""
     }`;
@@ -118,12 +89,12 @@ export default function CommandPaletteItem({
             onMouseDown={(event) => event.preventDefault()}
             onMouseMove={() => onActive(absIdx)}
             onClick={() => onSelect(item)}
-            className={buttonClassName}
+            className={isActive ? "cmdk-item is-active" : "cmdk-item"}
         >
-            <span className={labelClassName}>
+            <span className="cmdk-item__label">
                 <Icon meta={item.meta} theme={theme} />
-                <span className="flex flex-col min-w-0">
-                    <span className="truncate">{item.label}</span>
+                <span className="cmdk-item__text">
+                    <span className="cmdk-item__name">{item.label}</span>
                     {item.meta && (
                         <CommandPaletteMeta
                             meta={item.meta}
@@ -134,7 +105,7 @@ export default function CommandPaletteItem({
                 </span>
             </span>
             {item.shortcut && (
-                <kbd className={shortcutClassName}>{item.shortcut}</kbd>
+                <kbd className="cmdk-kbd">{item.shortcut}</kbd>
             )}
         </li>
     );

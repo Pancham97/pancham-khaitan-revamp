@@ -100,28 +100,19 @@ export default async function WorkDetailPage({
             </header>
 
             {work.heroImage && (
-                <figure style={{ margin: "0 0 1.75rem" }}>
-                    <div
-                        style={{
-                            position: "relative",
-                            aspectRatio: "16 / 9",
-                            width: "100%",
-                            overflow: "hidden",
-                            border: "1px solid var(--line)",
-                            background: "var(--hover)",
-                        }}
-                    >
+                <figure className="detail-hero">
+                    <div className="detail-hero__frame">
                         <Image
                             src={work.heroImage}
                             alt={work.heroImageAlt || work.title}
                             fill
-                            className="object-cover"
+                            className="detail-hero__img"
                             sizes="(min-width: 768px) 672px, calc(100vw - 2rem)"
                             priority
                         />
                     </div>
                     {(work.heroImageCaption || work.imageLink) && (
-                        <figcaption className="row-desc">
+                        <figcaption className="row-desc detail-hero__cap">
                             {work.heroImageCaption && (
                                 <span>{work.heroImageCaption}</span>
                             )}
@@ -147,13 +138,23 @@ export default async function WorkDetailPage({
             <WorkDetailClient work={work} />
 
             {nextWork && (
-                <aside style={{ marginTop: "2.5rem", paddingTop: "1.25rem", borderTop: "1px solid var(--line)" }}>
+                <aside className="detail-next">
                     <Link href={`/work/${nextWork.slug}`} className="row-link">
                         <span className="section-title">Next</span>
                         <span className="row-title">{nextWork.title} →</span>
                     </Link>
                 </aside>
             )}
+
+            <p className="row-extra">
+                <Link href="/work" className="see-more-link">
+                    ← All work
+                </Link>
+                {" · "}
+                <Link href="/projects" className="see-more-link">
+                    Projects
+                </Link>
+            </p>
         </article>
     );
 }

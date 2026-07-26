@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { GEAR } from "@/data/site";
+import PageBridge from "@/components/PageBridge";
 
 export const metadata: Metadata = {
     title: "Gear",
@@ -73,6 +74,14 @@ export default function GearPage() {
             </div>
 
             {GEAR.length === 0 && <p className="muted">Nothing listed yet.</p>}
+
+            <PageBridge
+                links={[
+                    { href: "/projects", label: "Projects" },
+                    { href: "/about", label: "About" },
+                    { href: "/work", label: "Work" },
+                ]}
+            />
         </div>
     );
 }

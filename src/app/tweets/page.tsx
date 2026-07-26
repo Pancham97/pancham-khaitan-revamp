@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { SITE } from "@/data/site";
 import { getTweets } from "@/lib/tweets";
+import PageBridge from "@/components/PageBridge";
 
 export const metadata: Metadata = {
     title: "Tweets",
@@ -58,6 +59,14 @@ export default async function TweetsPage() {
             ))}
 
             {tweets.length === 0 && <p className="muted">Nothing here yet.</p>}
+
+            <PageBridge
+                links={[
+                    { href: "/blog", label: "Blog" },
+                    { href: "/now", label: "Now" },
+                    { href: "/about", label: "About" },
+                ]}
+            />
         </div>
     );
 }

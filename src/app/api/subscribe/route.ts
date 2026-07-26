@@ -1,48 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendWelcomeEmail } from "@/lib/resend";
 import validateEmail from "@/lib/validateEmail";
+import { createRateLimiter, getClientIp } from "@/lib/rate-limit";
 
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 const RATE_LIMIT_MAX_BY_IP = 10;
 const RATE_LIMIT_MAX_BY_EMAIL = 3;
 
-type RateLimitEntry = {
-    count: number;
-    resetAt: number;
-};
-
-const subscribeRateLimits = new Map<string, RateLimitEntry>();
-
-const getClientIp = (request: NextRequest) => {
-    const forwardedFor = request.headers.get("x-forwarded-for");
-    const firstForwardedIp = forwardedFor?.split(",")[0]?.trim();
-
-    return (
-        firstForwardedIp ||
-        request.headers.get("x-real-ip")?.trim() ||
-        "unknown"
-    );
-};
-
-const isRateLimited = (key: string, maxRequests: number) => {
-    const now = Date.now();
-    const current = subscribeRateLimits.get(key);
-
-    if (!current || current.resetAt <= now) {
-        subscribeRateLimits.set(key, {
-            count: 1,
-            resetAt: now + RATE_LIMIT_WINDOW_MS,
-        });
-        return false;
-    }
-
-    if (current.count >= maxRequests) {
-        return true;
-    }
-
-    current.count += 1;
-    return false;
-};
+const subscribeRateLimiter = createRateLimiter(RATE_LIMIT_WINDOW_MS);
 
 export async function POST(request: NextRequest) {
     try {
@@ -66,8 +31,14 @@ export async function POST(request: NextRequest) {
         const normalizedEmail = email.toLowerCase();
         const clientIp = getClientIp(request);
         const rateLimited =
-            isRateLimited(`ip:${clientIp}`, RATE_LIMIT_MAX_BY_IP) ||
-            isRateLimited(`email:${normalizedEmail}`, RATE_LIMIT_MAX_BY_EMAIL);
+            subscribeRateLimiter.isLimited(
+                `ip:${clientIp}`,
+                RATE_LIMIT_MAX_BY_IP,
+            ) ||
+            subscribeRateLimiter.isLimited(
+                `email:${normalizedEmail}`,
+                RATE_LIMIT_MAX_BY_EMAIL,
+            );
 
         if (rateLimited) {
             return NextResponse.json(

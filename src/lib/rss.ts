@@ -8,6 +8,8 @@ export type RssItem = {
     link: string;
     description: string;
     descriptionHtml: string;
+    /** Full post HTML when the source feed provides content:encoded */
+    contentHtml: string;
     pubDate: string;
     guid: string;
     image?: string | null;
@@ -133,6 +135,7 @@ export function parseRssItems(xml: string): RssItem[] {
             link,
             description: description || title,
             descriptionHtml,
+            contentHtml: contentEncoded || descriptionHtml,
             pubDate,
             guid,
             image,
