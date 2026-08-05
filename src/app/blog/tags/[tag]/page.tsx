@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { getBlogsByTag } from "@/lib/server-queries";
+import { getAllBlogs, getBlogsByTag } from "@/lib/server-queries";
 import { getFormattedDate } from "@/lib/formatDate";
 import PageBridge from "@/components/PageBridge";
 
@@ -21,7 +21,14 @@ export async function generateMetadata({
     };
 }
 
-export const revalidate = 60;
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+    const posts = await getAllBlogs();
+    const tags = new Set(posts.flatMap((post) => post.tags));
+
+    return Array.from(tags).map((tag) => ({ tag }));
+}
 
 export default async function BlogTagPage({ params }: PageProps) {
     const { tag } = await params;

@@ -3,6 +3,12 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
+import {
+    SEARCH_ALIASES,
+    SECONDARY_SECTIONS,
+    SECTIONS,
+    SOCIALS,
+} from "@/data/site";
 import CommandPaletteItem from "./CommandPaletteItem";
 
 type Theme = "light" | "dark";
@@ -14,7 +20,58 @@ type Item = {
     meta?: string;
     shortcut?: string;
     action?: () => void;
+    keywords?: string[];
 };
+
+const BASE_ITEMS: Item[] = [
+    { label: "Home", href: "/", shortcut: "H", meta: "Navigate" },
+    ...[...SECTIONS, ...SECONDARY_SECTIONS].map((section) => ({
+        label: section.label,
+        href: section.href,
+        shortcut: section.key.toUpperCase(),
+        meta: "Navigate",
+    })),
+    ...SEARCH_ALIASES.map((alias) => ({
+        label: alias.label,
+        href: alias.href,
+        external: "external" in alias && alias.external,
+        meta: alias.meta,
+        keywords: [...alias.keywords],
+    })),
+    ...SOCIALS.filter((social) => social.label !== "Email").map((social) => ({
+        label: social.label,
+        href: social.href,
+        external: social.external,
+        meta: "Social",
+    })),
+];
+
+const SEARCH_GROUP_ORDER = [
+    "Navigate",
+    "Action",
+    "Work",
+    "Projects",
+    "Blog",
+    "Notes",
+    "Log",
+    "Follow",
+    "External",
+    "Social",
+    "Other",
+];
+const DEFAULT_GROUP_ORDER = ["Navigate", "Actions"];
+
+function dedupeItems(items: Item[]): Item[] {
+    const seen = new Set<string>();
+    return items.filter((item) => {
+        const key = `${item.href || "action"}::${item.label}`;
+        if (seen.has(key)) {
+            return false;
+        }
+        seen.add(key);
+        return true;
+    });
+}
 
 const FOCUSABLE_SELECTOR = [
     "a[href]",
@@ -122,73 +179,6 @@ export default function CommandPalette() {
         applyTheme(next);
     };
 
-    const BASE_ITEMS: Item[] = [
-        { label: "Home", href: "/", shortcut: "H" },
-        { label: "Work", href: "/work", shortcut: "W" },
-        { label: "Blog", href: "/blog", shortcut: "B" },
-        { label: "Notes", href: "/notes", shortcut: "N" },
-        { label: "About", href: "/about", shortcut: "A" },
-        { label: "Contact", href: "/contact", shortcut: "C" },
-        { label: "Projects", href: "/projects", shortcut: "P" },
-        { label: "Gear", href: "/gear", shortcut: "E" },
-        { label: "Tweets", href: "/tweets", shortcut: "T" },
-        { label: "Now", href: "/now", shortcut: "O" },
-        {
-            label: "Helios",
-            href: "/work/helios",
-            meta: "Work",
-        },
-        {
-            label: "Aura Analyst",
-            href: "/work/aura-analyst",
-            meta: "Work",
-        },
-        {
-            label: "Steno (Mac)",
-            href: "https://apps.apple.com/in/app/steno-dictation/id6762076728?mt=12",
-            external: true,
-            meta: "Projects",
-        },
-        {
-            label: "Varta",
-            href: "https://varta.work",
-            external: true,
-            meta: "Projects",
-        },
-        {
-            label: "Sunchay",
-            href: "https://x.com/SunchayApp",
-            external: true,
-            meta: "Projects",
-        },
-        {
-            label: "RSS",
-            href: "/feed.xml",
-            meta: "Follow",
-        },
-        {
-            label: "Substack",
-            href: "https://panchamk.substack.com",
-            external: true,
-            meta: "Follow",
-        },
-        {
-            label: "X / Twitter",
-            href: "https://x.com/PanchamKhaitan",
-            external: true,
-        },
-        {
-            label: "Instagram",
-            href: "https://www.instagram.com/pancham.khaitan/",
-            external: true,
-        },
-        {
-            label: "GitHub",
-            href: "https://github.com/Pancham97",
-            external: true,
-        },
-    ];
-
     const ACTION_ITEMS: Item[] = [
         {
             label:
@@ -288,39 +278,47 @@ export default function CommandPalette() {
         };
     }, [open, closePalette]);
 
-    const [results, setResults] = useState<Item[]>([]);
+    const [searchItems, setSearchItems] = useState<Item[]>([]);
 
     useEffect(() => {
-        const term = q.trim();
-        if (!term) {
-            setResults([]);
+        if (!open || searchItems.length > 0) {
             return;
         }
 
         const ac = new AbortController();
-        const id = setTimeout(async () => {
+        const loadSearchIndex = async () => {
             try {
-                const res = await fetch(
-                    `/api/search?q=${encodeURIComponent(term)}`,
-                    { signal: ac.signal },
-                );
+                const res = await fetch("/search-index.json", {
+                    signal: ac.signal,
+                });
                 if (!res.ok) {
                     return;
                 }
-                const data = await res.json();
-                setResults(data.items || []);
+                const data = (await res.json()) as { items?: Item[] };
+                setSearchItems(Array.isArray(data.items) ? data.items : []);
             } catch {
                 /* ignore */
             }
-        }, 150);
+        };
+        void loadSearchIndex();
 
         return () => {
             ac.abort();
-            clearTimeout(id);
         };
-    }, [q]);
+    }, [open, searchItems.length]);
 
     const term = q.trim().toLowerCase();
+    let results: Item[] = [];
+    if (term) {
+        results = searchItems
+            .filter((item) =>
+                [item.label, item.meta || "", ...(item.keywords || [])]
+                    .join(" ")
+                    .toLowerCase()
+                    .includes(term),
+            )
+            .slice(0, 12);
+    }
     const filteredBase = term
         ? BASE_ITEMS.filter((i) => i.label.toLowerCase().includes(term))
         : BASE_ITEMS;
@@ -328,9 +326,11 @@ export default function CommandPalette() {
         ? ACTION_ITEMS.filter((i) => i.label.toLowerCase().includes(term))
         : ACTION_ITEMS;
 
-    const allFilteredItems: Item[] = term
-        ? [...filteredBase, ...filteredActions, ...results]
-        : [...BASE_ITEMS, ...ACTION_ITEMS];
+    const allFilteredItems = dedupeItems(
+        term
+            ? [...filteredBase, ...filteredActions, ...results]
+            : [...BASE_ITEMS, ...ACTION_ITEMS],
+    );
 
     const grouped: Record<string, Item[]> = term
         ? {}
@@ -341,23 +341,13 @@ export default function CommandPalette() {
             (grouped[key] ||= []).push(item);
         }
     }
-    const groupOrder = term
-        ? [
-            "Navigate",
-            "Action",
-            "Work",
-            "Blog",
-            "Substack",
-            "Notes",
-            "Log",
-            "Other",
-        ]
-        : ["Navigate", "Actions"];
+    const groupOrder = term ? SEARCH_GROUP_ORDER : DEFAULT_GROUP_ORDER;
 
     // Rebuild items in the same order as they appear in the grouped display
     const itemsToShow: Item[] = groupOrder
         .filter((g) => grouped[g] && grouped[g].length > 0)
         .flatMap((g) => grouped[g]);
+    const itemsToShowCount = itemsToShow.length;
 
     useEffect(() => {
         setCursor(0);
@@ -365,15 +355,15 @@ export default function CommandPalette() {
 
     // Scroll selected item into view
     useEffect(() => {
-        if (!listRef.current || itemsToShow.length === 0) {
+        if (!listRef.current || itemsToShowCount === 0) {
             return;
         }
 
         const prevCursor = prevCursorRef.current;
         const isWrappingToFirst =
-            prevCursor === itemsToShow.length - 1 && cursor === 0;
+            prevCursor === itemsToShowCount - 1 && cursor === 0;
         const isWrappingToLast =
-            prevCursor === 0 && cursor === itemsToShow.length - 1;
+            prevCursor === 0 && cursor === itemsToShowCount - 1;
 
         if (isWrappingToFirst) {
             // Scroll to absolute top
@@ -398,7 +388,7 @@ export default function CommandPalette() {
         }
 
         prevCursorRef.current = cursor;
-    }, [cursor, itemsToShow.length]);
+    }, [cursor, itemsToShowCount]);
 
     // Update scroll shadows
     useEffect(() => {
@@ -419,7 +409,7 @@ export default function CommandPalette() {
         updateScrollShadows();
         list.addEventListener("scroll", updateScrollShadows);
         return () => list.removeEventListener("scroll", updateScrollShadows);
-    }, [itemsToShow]);
+    }, [q, itemsToShowCount]);
 
     const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (!itemsToShow.length) {

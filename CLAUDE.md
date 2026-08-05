@@ -11,8 +11,14 @@ npm run dev
 # Build for production
 npm run build
 
-# Start production server
-npm start
+# Preview the exported site with Cloudflare Pages locally
+npm run preview:cloudflare
+
+# Deploy to the configured Cloudflare Pages project (requires Wrangler authentication)
+npm run deploy:cloudflare
+
+# Verify that the export contains no Next.js server routes
+npm run verify:static
 
 # Lint
 npm run lint
@@ -25,7 +31,7 @@ npm run format:check
 
 ## Architecture Overview
 
-This is a personal portfolio website built with **Next.js 15.4.1 App Router** and **React 19.1.0**. The architecture has evolved from a MongoDB-backed GraphQL API to a **file-based content system** using markdown files with frontmatter.
+This is a static personal portfolio built with **Next.js 15.5.18 App Router** and **React 19.1.0**, exported to `out/` and hosted on Cloudflare Pages. Content is file-based markdown with frontmatter.
 
 ### Core Architecture
 
@@ -39,18 +45,18 @@ This is a personal portfolio website built with **Next.js 15.4.1 App Router** an
 **Data Flow:**
 
 1. Markdown files → `content-loader.ts` (gray-matter parsing) → `server-queries.ts` (normalization) → Page components
-2. No database queries at runtime - all content is read from filesystem during SSR/SSG
+2. No database or Next.js server runs in production; content is read during the static build
 
 **Email System:**
 
-- Uses Resend API via `src/lib/resend.ts`
-- Two email types: contact forms (`/api/contact`) and newsletter subscriptions (`/api/subscribe`)
-- Sends dual emails: user confirmation + owner notification
+- The static contact page posts to the Cloudflare Pages Function at `functions/api/contact.ts`
+- The function verifies Cloudflare Turnstile and calls the Resend REST API
+- It sends an owner notification; the visitor's address is used only for replies
 
 **Search:**
 
-- Full-text search API at `/api/search` searches across all content types
-- Integrated into CommandPalette component (Cmd+K / Ctrl+K)
+- `src/app/search-index.json/route.ts` generates a static index at build time
+- `CommandPalette` downloads that JSON and filters it in the browser (Cmd+K / Ctrl+K)
 
 ### Key Pages & Routes
 
@@ -79,7 +85,7 @@ This is a personal portfolio website built with **Next.js 15.4.1 App Router** an
 
 **Key Interactive Components:**
 
-- `CommandPalette.tsx` - Cmd+K search palette, searches via `/api/search`
+- `CommandPalette.tsx` - Cmd+K search palette, filters `/search-index.json` locally
 - `ThemeToggle.tsx` - Light/dark mode switcher with localStorage persistence
 - `Carousel.tsx` - Featured work carousel on homepage using react-multi-carousel
 - `ClientOverlays.tsx` - Wraps CommandPalette and other client-side overlays
@@ -103,8 +109,9 @@ Type definitions in `src/types/`:
 
 **Build Configuration (`next.config.js`):**
 
-- `ignoreBuildErrors: true` and `ignoreDuringBuilds: true` - TypeScript/ESLint errors don't fail builds
-- Remote images allowed from all HTTPS domains
+- `output: "export"` emits static files into `out/`
+- Next Image optimization is disabled because Cloudflare serves the exported assets directly
+- Remote images are restricted to the hostnames listed in `next.config.js`
 
 **Content Frontmatter Format:**
 
@@ -162,18 +169,20 @@ createdAt: date string
 
 ### Environment Variables
 
-Required for full functionality (see `sample-env.yml` if it exists):
+Required for full functionality:
 
 ```
-RESEND_API_KEY                      # For email via Resend
-PROFESSIONAL_EMAIL                  # Owner email for contact forms
-NEXT_PUBLIC_TURNSTILE_SITE_KEY     # Cloudflare Turnstile site key (client-side)
-TURNSTILE_SECRET_KEY                # Cloudflare Turnstile secret key (server-side)
+NEXT_PUBLIC_TURNSTILE_SITE_KEY      # Required at build time
+RESEND_API_KEY                      # Cloudflare Pages secret
+TURNSTILE_SECRET_KEY                # Cloudflare Pages secret
+PROFESSIONAL_EMAIL                  # Optional Pages secret; defaults to hello@
 ```
 
 ### Development Notes
 
-- Content changes require dev server restart to see updates (no hot reload for markdown)
-- Search indexing happens on each API request (no pre-built index)
+- Production has no Next.js process. Run `npm run build` and deploy `out/`.
+- Content and search changes appear after a new build and deployment.
+- `public/_headers` defines the production security and cache headers.
+- Next.js telemetry is disabled in the development and build scripts.
 - Images should be hosted externally (typically S3) and referenced via URL in frontmatter
 - Dark mode state persists in localStorage with inline script preventing flash

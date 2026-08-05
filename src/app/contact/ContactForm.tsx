@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, FormEvent } from "react";
-import { Turnstile } from "@marsidev/react-turnstile";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import validateEmail from "@/lib/validateEmail";
 import { SITE } from "@/data/site";
 
@@ -34,6 +34,7 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
     const visitorMessage = useRef<HTMLTextAreaElement>(null);
     const successRef = useRef<HTMLDivElement>(null);
     const alertRef = useRef<HTMLDivElement>(null);
+    const turnstileRef = useRef<TurnstileInstance>(null);
 
     const handleEmailChange = () => {
         if (error.email) {
@@ -89,15 +90,11 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
             });
 
             if (!response.ok) {
-                if (response.status === 429) {
-                    throw new Error("rate_limited");
-                }
                 throw new Error("Failed to send message");
             }
 
             setShowAlert(true);
             setServerError(false);
-            setTurnstileToken("");
 
             if (visitorFirstName.current) {
                 visitorFirstName.current.value = "";
@@ -122,17 +119,15 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
             console.error("Error sending message:", err);
             setShowAlert(true);
             setServerError(true);
-            const isRateLimited =
-                err instanceof Error && err.message === "rate_limited";
             setErrorMessage(
-                isRateLimited
-                    ? `Too many messages. Wait a bit, or email ${SITE.email} directly.`
-                    : `Try again in a bit, or email ${SITE.email} directly.`,
+                `Try again in a bit, or email ${SITE.email} directly.`,
             );
             window.requestAnimationFrame(() => {
                 alertRef.current?.focus();
             });
         } finally {
+            setTurnstileToken("");
+            turnstileRef.current?.reset();
             setIsSubmitting(false);
         }
     };
@@ -231,7 +226,11 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
                         className={error.email ? "is-invalid" : undefined}
                     />
                     {error.email ? (
-                        <p id="email-error" className="form-field-error" role="alert">
+                        <p
+                            id="email-error"
+                            className="form-field-error"
+                            role="alert"
+                        >
                             {error.email}
                         </p>
                     ) : null}
@@ -263,6 +262,7 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
                 <div>
                     {isTurnstileConfigured ? (
                         <Turnstile
+                            ref={turnstileRef}
                             siteKey={turnstileSiteKey}
                             onSuccess={(token) => {
                                 setTurnstileToken(token);

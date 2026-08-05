@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    output: "export",
     images: {
+        unoptimized: true,
         remotePatterns: [
             {
                 protocol: "https",
@@ -22,38 +24,7 @@ const nextConfig = {
                 hostname: "qph.cf2.quoracdn.net",
                 pathname: "/main-qimg-b9cd01591303fe0505f967efb5406d4a-lq",
             },
-            {
-                protocol: "https",
-                hostname: "pbs.twimg.com",
-                pathname: "/**",
-            },
-            {
-                protocol: "https",
-                hostname: "substackcdn.com",
-                pathname: "/**",
-            },
-            {
-                protocol: "https",
-                hostname: "*.substackcdn.com",
-                pathname: "/**",
-            },
         ],
-    },
-    async headers() {
-        return [
-            {
-                source: "/:path*",
-                headers: [
-                    { key: "X-Content-Type-Options", value: "nosniff" },
-                    { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-                    {
-                        key: "Permissions-Policy",
-                        value: "camera=(), microphone=(), geolocation=()",
-                    },
-                    { key: "X-Frame-Options", value: "SAMEORIGIN" },
-                ],
-            },
-        ];
     },
 };
 

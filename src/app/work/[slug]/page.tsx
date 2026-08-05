@@ -5,8 +5,7 @@ import { notFound } from "next/navigation";
 import { getWorkBySlug, getAllWork } from "@/lib/server-queries";
 import WorkDetailClient from "./WorkDetailClient";
 
-// Add revalidation for ISR
-export const revalidate = 3600; // Cache for 1 hour
+export const dynamicParams = false;
 
 // Generate static params for all work posts
 export async function generateStaticParams() {

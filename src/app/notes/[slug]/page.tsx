@@ -13,7 +13,7 @@ interface PageProps {
     }>;
 }
 
-export const revalidate = 3600;
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
     const notes = await getAllNotes();
@@ -80,10 +80,7 @@ export default async function NotePage({ params }: PageProps) {
                 </p>
             </header>
 
-            <MarkdownRenderer
-                content={note.content ?? ""}
-                className="prose"
-            />
+            <MarkdownRenderer content={note.content ?? ""} className="prose" />
 
             <PageBridge
                 links={[
