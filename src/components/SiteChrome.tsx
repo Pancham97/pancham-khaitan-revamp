@@ -134,8 +134,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
                     'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
                 ),
             ).filter(
-                (el) =>
-                    el.offsetParent !== null || el === toggleRef.current,
+                (el) => el.offsetParent !== null || el === toggleRef.current,
             );
 
             const chain = [toggleRef.current, ...drawerFocusable].filter(
@@ -161,9 +160,8 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
         window.addEventListener("keydown", onKeyDown);
 
         const focusTimer = window.setTimeout(() => {
-            const first = drawerRef.current?.querySelector<HTMLElement>(
-                "a[href]",
-            );
+            const first =
+                drawerRef.current?.querySelector<HTMLElement>("a[href]");
             first?.focus();
         }, 40);
 
@@ -180,19 +178,11 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
             href: f.href,
             external: f.external,
         })),
-        ...SOCIALS.filter(
-            (s) =>
-                s.label !== "Email" &&
-                !FOLLOW.some((f) => f.href === s.href),
-        ),
+        ...SOCIALS.filter((social) => social.label !== "Email"),
     ];
 
     return (
-        <div
-            className={
-                menuOpen ? "site-shell is-menu-open" : "site-shell"
-            }
-        >
+        <div className={menuOpen ? "site-shell is-menu-open" : "site-shell"}>
             <a href="#main" className="skip-link">
                 Skip to content
             </a>

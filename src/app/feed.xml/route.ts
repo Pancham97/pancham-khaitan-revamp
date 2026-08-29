@@ -16,7 +16,7 @@ function cdata(value: string): string {
     return `<![CDATA[${value.replace(/]]>/g, "]]]]><![CDATA[>")}]]>`;
 }
 
-export const revalidate = 3600;
+export const dynamic = "force-static";
 
 export async function GET() {
     const posts = await getAllWriting({ includeBody: true });
@@ -24,17 +24,13 @@ export async function GET() {
     const items = posts
         .slice(0, 40)
         .map((post) => {
-            const link = post.external
-                ? post.href
-                : `${SITE_URL}${post.href.startsWith("/") ? post.href : `/${post.href}`}`;
+            const link = `${SITE_URL}${post.href.startsWith("/") ? post.href : `/${post.href}`}`;
             const pub = new Date(post.createdAt).toUTCString();
             const summary = post.description || post.title;
             const body = post.bodyHtml?.trim();
 
-            // Full HTML body when available; fall back to summary for thin remote items.
-            const htmlBody = body
-                ? body
-                : `<p>${escapeXml(summary)}</p>`;
+            // Fall back to the summary if a local post has no body.
+            const htmlBody = body ? body : `<p>${escapeXml(summary)}</p>`;
             const contentBlock = `      <content:encoded>${cdata(htmlBody)}</content:encoded>`;
 
             return `    <item>
@@ -44,7 +40,7 @@ export async function GET() {
       <pubDate>${pub}</pubDate>
       <description>${escapeXml(summary)}</description>
 ${contentBlock}
-      <category>${post.source === "substack" ? "Substack" : "Blog"}</category>
+      <category>Blog</category>
     </item>`;
         })
         .join("\n");
@@ -56,7 +52,7 @@ ${contentBlock}
   <channel>
     <title>Pancham Khaitan</title>
     <link>${SITE_URL}</link>
-    <description>Writing on engineering, tools, craft, and life — including The Curious Coder on Substack.</description>
+    <description>Writing on engineering, tools, craft, and life.</description>
     <language>en</language>
     <atom:link href="${SITE_URL}/feed.xml" rel="self" type="application/rss+xml"/>
 ${items}
@@ -67,7 +63,6 @@ ${items}
     return new Response(xml, {
         headers: {
             "Content-Type": "application/rss+xml; charset=utf-8",
-            "Cache-Control": "s-maxage=3600, stale-while-revalidate",
         },
     });
 }

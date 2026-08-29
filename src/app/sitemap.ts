@@ -4,6 +4,8 @@ import { SECONDARY_SECTIONS, SECTIONS } from "@/data/site";
 
 const SITE_URL = "https://panchamkhaitan.com";
 
+export const dynamic = "force-static";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const [blogs, work, notes] = await Promise.all([
         getAllBlogs(),

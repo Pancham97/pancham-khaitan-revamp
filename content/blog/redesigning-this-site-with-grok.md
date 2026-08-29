@@ -2,9 +2,9 @@
 title: "Redesigning this site with Grok as pair programmer"
 description: "How I rebuilt panchamkhaitan.com as a modern-minimal personal site — photo, short prose, full posts in the feed — with Grok accelerating the work and human taste calling the shots."
 tags:
-  - design
-  - engineering
-  - personal
+    - design
+    - engineering
+    - personal
 createdAt: "2026-07-17"
 updatedAt: "2026-07-26"
 ---
@@ -41,7 +41,7 @@ It is not here to impress. It is here so someone can:
 - open **work**, **writing**, **notes**, or **about** without hunting chrome
 - leave via contact if they want to talk
 
-Primary nav stays short: Work · Blog · Notes · About · Contact. Projects, gear, tweets, and now still exist — Cmd+K and in-page links are enough for those.
+Primary nav stays short: Work · Blog · Notes · About · Contact. Projects, gear, and now still exist — Cmd+K and in-page links are enough for those.
 
 ## What changed under the hood
 
@@ -52,14 +52,14 @@ Primary nav stays short: Work · Blog · Notes · About · Contact. Projects, ge
 
 **After:**
 
-- File-based content (`content/blog`, `content/work`, notes, updates) loaded at build/request time
+- File-based content (`content/blog`, `content/work`, notes, updates) loaded at build time
 - One quiet reading measure, Source Serif, restrained accent
 - Career-first `/work`, side projects on `/projects`, an honest `/now`
 - Real `/notes` listing (study notes), not buried only under About
 - Cmd+K search across pages and posts
 - Dark mode without fighting the page
-- Dynamic OG images
-- RSS with **full post bodies** for local writing (`content:encoded`), plus Substack when their feed provides it
+- A prebuilt OG image and search index
+- RSS with **full post bodies** for local writing (`content:encoded`)
 
 The homepage stays intentionally short on purpose.
 
@@ -80,7 +80,7 @@ I had to:
 - Compress multi‑MB gear photos nobody needed at full resolution
 - Flesh out Helios and Aura case studies so they were not thinner than old freelance pages
 - Keep repeated “clever” lines from showing up on every page
-- Decide what *not* to ship (Instagram embeds that break, default Next 404s, public template SVGs)
+- Decide what _not_ to ship (Instagram embeds that break, default Next 404s, public template SVGs)
 - Hunt real before screenshots (Wayback) instead of inventing a fake past
 
 That is the honest split: **Grok accelerated the redesign; I owned the bar.**
@@ -91,7 +91,7 @@ That is the honest split: **Grok accelerated the redesign; I owned the bar.**
 - Markdown + YAML frontmatter (no runtime DB)
 - Tailwind 4 tokens for a quiet paper / ink system
 - Resend + Cloudflare Turnstile for contact
-- Hosted on Railway, in front of Cloudflare
+- Statically hosted on Cloudflare Pages
 
 ## If you are building with agents too
 
@@ -99,7 +99,7 @@ That is the honest split: **Grok accelerated the redesign; I owned the bar.**
 2. Put content in boring files so either of you can edit without ceremony.
 3. Measure the embarrassing stuff: image weight, empty states, forms under spam, feed completeness.
 4. Write down what the model did vs what you decided — readers can smell pure hype.
-5. Keep a before capture (or use the Archive) *before* you ship the redesign.
+5. Keep a before capture (or use the Archive) _before_ you ship the redesign.
 6. Prefer **necessary** over **impressive**. The second redesign is often the honest one.
 
 If you want the source or to argue about how quiet a personal site should be, [say hi](/contact).

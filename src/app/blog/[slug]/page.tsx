@@ -11,8 +11,7 @@ interface PageProps {
     }>;
 }
 
-// Add revalidation for ISR
-export const revalidate = 3600; // Cache for 1 hour
+export const dynamicParams = false;
 
 // Generate static params for all blog posts
 export async function generateStaticParams() {
@@ -35,8 +34,6 @@ export async function generateMetadata({
         };
     }
 
-    const ogImageUrl = `https://panchamkhaitan.com/api/og?title=${encodeURIComponent(post.title)}`;
-
     const description = post.blogDescription || post.title;
 
     return {
@@ -45,15 +42,15 @@ export async function generateMetadata({
         openGraph: {
             title: post.title,
             description,
-            images: [ogImageUrl],
             url: `/blog/${post.slug}`,
             type: "article",
+            images: ["/opengraph-image"],
         },
         twitter: {
             title: post.title,
             description,
-            images: [ogImageUrl],
             card: "summary_large_image",
+            images: ["/opengraph-image"],
         },
     };
 }
@@ -74,7 +71,10 @@ export default async function BlogPostPage({ params }: PageProps) {
                     {getFormattedDate(post.createdAt)} · {post.timeToRead}
                 </p>
                 {post.tags && post.tags.length > 0 && (
-                    <p className="row-extra muted" style={{ marginTop: "0.75rem" }}>
+                    <p
+                        className="row-extra muted"
+                        style={{ marginTop: "0.75rem" }}
+                    >
                         {post.tags.map((tag, index) => (
                             <span key={tag}>
                                 {index > 0 ? " · " : ""}

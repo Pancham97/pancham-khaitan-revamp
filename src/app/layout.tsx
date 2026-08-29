@@ -9,8 +9,6 @@ const sourceSerif = Source_Serif_4({
     display: "swap",
 });
 
-const defaultOg = "https://panchamkhaitan.com/api/og?title=Pancham%20Khaitan";
-
 const siteDescription =
     "Software engineer at SingleStore. Also sings Hindustani classical, plays keys, and clicks photos on evening walks.";
 
@@ -34,19 +32,11 @@ export const metadata: Metadata = {
         siteName: "Pancham Khaitan",
         type: "website",
         locale: "en_US",
-        images: [
-            {
-                url: defaultOg,
-                width: 1200,
-                height: 630,
-            },
-        ],
     },
     twitter: {
         card: "summary_large_image",
         title: "Pancham Khaitan",
         description: siteDescription,
-        images: [defaultOg],
         creator: "@PanchamKhaitan",
     },
     icons: {

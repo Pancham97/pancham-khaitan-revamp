@@ -16,8 +16,6 @@ export const metadata: Metadata = {
     },
 };
 
-export const revalidate = 3600;
-
 /** Case studies already linked under Career — omit from Selected. */
 function careerCaseSlugs(): Set<string> {
     const slugs = new Set<string>();

@@ -9,8 +9,6 @@ export const metadata: Metadata = {
     description: "What Pancham is focused on.",
 };
 
-export const revalidate = 1800;
-
 export default async function NowPage() {
     const updates = await getAllUpdates();
     const updatedLabel = getFormattedDate(NOW.updated);
@@ -86,7 +84,7 @@ export default async function NowPage() {
             <PageBridge
                 links={[
                     { href: "/blog", label: "Blog" },
-                    { href: "/tweets", label: "Tweets" },
+                    { href: "/projects", label: "Projects" },
                     { href: "/work", label: "Work" },
                 ]}
             />

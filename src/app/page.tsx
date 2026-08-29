@@ -12,8 +12,6 @@ export const metadata: Metadata = {
     alternates: { canonical: "/" },
 };
 
-export const revalidate = 1800;
-
 /**
  * Home stays light: photo + short prose, with projects named in a sentence.
  * Everything else is one link away.

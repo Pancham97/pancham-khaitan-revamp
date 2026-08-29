@@ -1,6 +1,6 @@
 /**
  * Central site content for the modern-minimal personal site.
- * Edit here to update career, projects, gear, tweets, and socials.
+ * Edit here to update career, projects, gear, and socials.
  */
 
 export const SITE = {
@@ -16,8 +16,7 @@ export const SITE = {
     tagline:
         "I build software. I also sing Hindustani classical, play keys, and click photos on evening walks.",
     /** Product/context line used where a second sentence helps */
-    workLine:
-        "Right now I work on Helios and Aura Analyst at SingleStore.",
+    workLine: "Right now I work on Helios and Aura Analyst at SingleStore.",
     location: "India",
 } as const;
 
@@ -30,11 +29,6 @@ export const SOCIALS = [
     {
         label: "Instagram",
         href: "https://www.instagram.com/pancham.khaitan/",
-        external: true,
-    },
-    {
-        label: "Substack",
-        href: "https://panchamk.substack.com",
         external: true,
     },
     {
@@ -116,12 +110,6 @@ export const SECONDARY_SECTIONS: SiteSection[] = [
         label: "Gear",
         hint: "What I actually use",
         key: "e",
-    },
-    {
-        href: "/tweets",
-        label: "Tweets",
-        hint: "Recent posts from X",
-        key: "t",
     },
     {
         href: "/now",
@@ -310,13 +298,6 @@ export const SEARCH_ALIASES = [
         meta: "Follow",
         keywords: ["rss", "feed", "subscribe"],
     },
-    {
-        label: "Substack",
-        href: "https://panchamk.substack.com",
-        meta: "Follow",
-        external: true,
-        keywords: ["substack", "newsletter", "subscribe", "writing"],
-    },
 ] as const;
 
 export type GearItem = {
@@ -332,7 +313,7 @@ export type GearItem = {
  */
 export const GEAR: GearItem[] = [
     {
-        name: "MacBook Pro 14\" M3 Pro",
+        name: 'MacBook Pro 14" M3 Pro',
         category: "Computer",
         note: "Daily driver. Where almost everything gets done.",
         href: "https://www.apple.com/macbook-pro/",
@@ -346,7 +327,7 @@ export const GEAR: GearItem[] = [
         image: "/gear/lg.jpg",
     },
     {
-        name: "iPad Pro 11\" M2",
+        name: 'iPad Pro 11" M2',
         category: "Tablet",
         note: "Reading, notes, music PDFs.",
         href: "https://www.apple.com/ipad-pro/",
@@ -466,59 +447,6 @@ export const GEAR: GearItem[] = [
     },
 ];
 
-export type TweetItem = {
-    id: string;
-    date: string;
-    text: string;
-    href: string;
-    /** Optional image/video poster for the row media cell */
-    image?: string | null;
-};
-
-/**
- * Curated fallback if live X/RSS is unavailable.
- * Prefer live via getTweets() (Nitter RSS or TWITTER_BEARER_TOKEN).
- */
-export const TWEETS: TweetItem[] = [
-    {
-        id: "2077813873890202034",
-        date: "2026-07-16",
-        text: "Grok 4.5 is soooo fast and intelligent! I am rebuilding my personal site with it. So fun to prototype with it. Lovely!",
-        href: "https://x.com/PanchamKhaitan/status/2077813873890202034",
-    },
-    {
-        id: "2077410003405914232",
-        date: "2026-07-15",
-        text: "Clicked this today on my evening walk.",
-        href: "https://x.com/PanchamKhaitan/status/2077410003405914232",
-        image: "https://pbs.twimg.com/media/HNRxYiqaoAAFeFF.jpg",
-    },
-    {
-        id: "2076236177594785808",
-        date: "2026-07-12",
-        text: "Calling them customers is so much better than calling them users. Makes you want to do more to give a good experience.",
-        href: "https://x.com/PanchamKhaitan/status/2076236177594785808",
-    },
-    {
-        id: "2075848891136983410",
-        date: "2026-07-11",
-        text: "I find myself brainstorming more with GPT 5.6 Sol. It's amazing how much clearer I feel because the model just gets me.",
-        href: "https://x.com/PanchamKhaitan/status/2075848891136983410",
-    },
-    {
-        id: "2075184898030350781",
-        date: "2026-07-09",
-        text: "Okay, I tried Cursor Cloud Agents today and my mind is blown.",
-        href: "https://x.com/PanchamKhaitan/status/2075184898030350781",
-    },
-    {
-        id: "2075127166162158075",
-        date: "2026-07-09",
-        text: "I have been using Steno to type and it honestly has made me so productive. Speech is fast, clarifies thought, and warms up the voice for music. All local, private.",
-        href: "https://x.com/PanchamKhaitan/status/2075127166162158075",
-    },
-];
-
 export const NOW = {
     updated: "2026-07-26",
     items: [
@@ -529,14 +457,9 @@ export const NOW = {
     ],
 } as const;
 
-/** Primary follow paths — RSS + writing stream. */
+/** Primary follow path for local writing. */
 export const FOLLOW = [
     { label: "RSS", href: "/feed.xml", external: false },
-    {
-        label: "Substack",
-        href: "https://panchamk.substack.com",
-        external: true,
-    },
 ] as const;
 
 /** Portrait / life photos used on index and about. Prefer compressed WebP. */
@@ -573,8 +496,7 @@ export const TRAVEL_PHOTOS = [
 /** Featured side project callout on the homepage. */
 export const FEATURED_PROJECT = {
     title: "Steno",
-    blurb:
-        "I have been using Steno to type and it honestly has made me so productive. Speech is fast, clarifies thought, and warms up the voice for music. All local, private.",
+    blurb: "I have been using Steno to type and it honestly has made me so productive. Speech is fast, clarifies thought, and warms up the voice for music. All local, private.",
     href: "https://apps.apple.com/in/app/steno-dictation/id6762076728?mt=12",
     meta: "Shipped · Mac",
 } as const;
