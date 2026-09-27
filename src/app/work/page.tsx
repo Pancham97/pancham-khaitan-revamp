@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getAllWork } from "@/lib/server-queries";
 import { getFormattedDate } from "@/lib/formatDate";
-import { CAREER, SITE, WORK_PROOFS } from "@/data/site";
+import { CAREER, WORK_PROOFS } from "@/data/site";
 import PageBridge from "@/components/PageBridge";
 
 export const metadata: Metadata = {
@@ -49,8 +49,8 @@ export default async function WorkPage() {
             <header className="page-header">
                 <h1 className="page-title">Work</h1>
                 <p className="page-lede">
-                    Day job and the products I help ship. Side projects live on{" "}
-                    <Link href="/projects">Projects</Link>.
+                    Where I have worked and what I helped ship. My own products
+                    live on <Link href="/projects">Projects</Link>.
                 </p>
             </header>
 
@@ -133,47 +133,28 @@ export default async function WorkPage() {
                     <article key={job.org} className="career-block">
                         <div className="row-top">
                             <h3 className="career-block__org">
-                                {"orgHref" in job && job.orgHref ? (
-                                    <a
-                                        href={job.orgHref}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                    >
-                                        {job.org}
-                                    </a>
-                                ) : (
-                                    job.org
-                                )}
+                                <a
+                                    href={job.orgHref}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    {job.org}
+                                </a>
                             </h3>
                             <span className="row-meta">{job.period}</span>
                         </div>
-                        <p className="career-block__role">{job.role}</p>
-                        {job.org === "SingleStore" ? (
-                            <p className="career-block__summary">
-                                I build{" "}
-                                <a
-                                    href={SITE.heliosHref}
-                                    target="_blank"
-                                    rel="noreferrer"
+                        <ul className="career-block__roles">
+                            {job.roles.map((r) => (
+                                <li
+                                    key={r.title}
+                                    className="career-block__role"
                                 >
-                                    Helios
-                                </a>{" "}
-                                (managed SingleStore) and{" "}
-                                <a
-                                    href={SITE.auraAnalystHref}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                >
-                                    Aura Analyst
-                                </a>
-                                . Data loading UI, making Command+K way faster,
-                                tools that help people write SQL.
-                            </p>
-                        ) : (
-                            <p className="career-block__summary">
-                                {job.summary}
-                            </p>
-                        )}
+                                    <span>{r.title}</span>
+                                    <span className="row-meta">{r.period}</span>
+                                </li>
+                            ))}
+                        </ul>
+                        <p className="career-block__summary">{job.summary}</p>
                         {job.highlights.length > 0 && (
                             <ul className="career-block__list">
                                 {job.highlights.map((h) => (

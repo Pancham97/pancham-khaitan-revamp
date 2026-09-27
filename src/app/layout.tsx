@@ -1,16 +1,24 @@
 import type { Metadata } from "next";
-import { Source_Serif_4 } from "next/font/google";
+import { Geist } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import SiteChrome from "@/components/SiteChrome";
+import { SITE } from "@/data/site";
 
-const sourceSerif = Source_Serif_4({
+const geist = Geist({
     subsets: ["latin"],
-    variable: "--font-source-serif",
+    variable: "--font-geist",
     display: "swap",
 });
 
-const siteDescription =
-    "Software engineer at SingleStore. Also sings Hindustani classical, plays keys, and clicks photos on evening walks.";
+const commitMono = localFont({
+    src: "../fonts/CommitMono-VF.woff2",
+    variable: "--font-commit-mono",
+    weight: "200 700",
+    display: "swap",
+});
+
+const siteDescription = SITE.description;
 
 export const metadata: Metadata = {
     metadataBase: new URL("https://panchamkhaitan.com"),
@@ -57,7 +65,10 @@ export default function RootLayout({
             suppressHydrationWarning
             data-theme="light"
             style={{ colorScheme: "light" }}
-            className={sourceSerif.variable}
+            className={`
+              ${geist.variable}
+              ${commitMono.variable}
+            `}
         >
             <head>
                 <meta name="color-scheme" content="light" />

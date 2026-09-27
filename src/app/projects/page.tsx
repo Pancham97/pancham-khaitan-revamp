@@ -1,15 +1,11 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import {
-    PROJECTS,
-    PROJECT_STATUS_LABEL,
-    type ProjectStatus,
-} from "@/data/site";
+import { PROJECTS } from "@/data/site";
 import PageBridge from "@/components/PageBridge";
 
 export const metadata: Metadata = {
     title: "Projects",
-    description: "Side projects by Pancham Khaitan.",
+    description: "Products, photos, and music by Pancham Khaitan.",
 };
 
 const KIND_ORDER = ["product", "photography", "music", "web"] as const;
@@ -21,19 +17,11 @@ const KIND_LABEL: Record<(typeof KIND_ORDER)[number], string> = {
     web: "Web",
 };
 
-const STATUS_RANK: Record<ProjectStatus, number> = {
-    building: 0,
-    shipped: 1,
-    paused: 2,
-};
-
 export default function ProjectsPage() {
     const byKind = KIND_ORDER.map((kind) => ({
         kind,
         label: KIND_LABEL[kind],
-        items: PROJECTS.filter((p) => p.kind === kind).slice().sort(
-            (a, b) => STATUS_RANK[a.status] - STATUS_RANK[b.status],
-        ),
+        items: PROJECTS.filter((p) => p.kind === kind),
     })).filter((g) => g.items.length > 0);
 
     return (
@@ -41,8 +29,7 @@ export default function ProjectsPage() {
             <header className="page-header">
                 <h1 className="page-title">Projects</h1>
                 <p className="page-lede">
-                    Side products, photos, music. Stuff I wanted for myself or
-                    could not stop thinking about.
+                    Products I have shipped, plus photos and music.
                 </p>
             </header>
 
@@ -57,7 +44,6 @@ export default function ProjectsPage() {
                     </h2>
                     <ul className="row-list">
                         {group.items.map((p) => {
-                            const statusLabel = PROJECT_STATUS_LABEL[p.status];
                             const content = (
                                 <>
                                     <div className="row-top">
@@ -66,18 +52,6 @@ export default function ProjectsPage() {
                                             {p.href?.startsWith("http")
                                                 ? " ↗"
                                                 : ""}
-                                        </span>
-                                        <span className="row-meta">
-                                            {p.status === "building" && (
-                                                <span
-                                                    className={`
-                                                      status-dot
-                                                      status-dot--building
-                                                    `}
-                                                    aria-hidden
-                                                />
-                                            )}
-                                            {statusLabel}
                                         </span>
                                     </div>
                                     <p className="row-desc">{p.description}</p>

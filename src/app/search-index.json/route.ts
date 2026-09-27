@@ -32,12 +32,7 @@ export async function GET() {
         href: project.href || "/projects",
         meta: "Projects",
         external: Boolean(project.href?.startsWith("http")),
-        keywords: [
-            project.title,
-            project.description,
-            project.kind,
-            project.status,
-        ],
+        keywords: [project.title, project.description, project.kind],
     }));
     const blogItems: SearchItem[] = writing.map((post) => ({
         label: post.title,

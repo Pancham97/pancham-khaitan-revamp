@@ -94,7 +94,7 @@ This is a static personal portfolio built with **Next.js 15.5.18 App Router** an
 
 - Mix of custom components in `src/components/` and shadcn/ui in `src/components/ui/`
 - Tailwind CSS 4.0 beta with custom theme (accent colors: `#1f1f1f`, `#0a0a0a`, `#6f6f6f`)
-- Geist font family (Sans + Mono) from Vercel
+- Geist Sans (next/font/google) + Commit Mono (self-hosted in `src/fonts`); no serif
 
 ### Type System
 
@@ -165,7 +165,7 @@ createdAt: date string
 - Tailwind CSS with dark mode via `class` strategy (manual toggle, not system-based)
 - Theme initialization script in root layout prevents flash on load
 - Custom SCSS modules coexist with Tailwind for legacy components
-- Font: Geist Sans + Geist Mono variable fonts
+- Font: Geist Sans for reading, Commit Mono for labels, meta, and code
 
 ### Environment Variables
 

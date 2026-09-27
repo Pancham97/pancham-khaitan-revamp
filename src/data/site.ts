@@ -6,17 +6,15 @@
 export const SITE = {
     name: "Pancham Khaitan",
     handle: "@PanchamKhaitan",
-    title: "Software engineer",
+    title: "Software Engineering Manager",
     org: "SingleStore",
+    /** Default meta description */
+    description:
+        "Software engineering manager at SingleStore. I make Steno and Sunchay, study Hindustani classical music, and take photos on evening walks.",
     orgHref: "https://www.singlestore.com/",
     heliosHref: "https://www.singlestore.com/cloud/",
     auraAnalystHref: "https://www.singlestore.com/ai/aura-analyst/",
     email: "hello@panchamkhaitan.com",
-    /** Human-first one-liner for social cards and meta */
-    tagline:
-        "I build software. I also sing Hindustani classical, play keys, and click photos on evening walks.",
-    /** Product/context line used where a second sentence helps */
-    workLine: "Right now I work on Helios and Aura Analyst at SingleStore.",
     location: "India",
 } as const;
 
@@ -102,7 +100,7 @@ export const SECONDARY_SECTIONS: SiteSection[] = [
     {
         href: "/projects",
         label: "Projects",
-        hint: "Side stuff I built",
+        hint: "Products, photos, music",
         key: "p",
     },
     {
@@ -128,10 +126,13 @@ export const CAREER = [
     {
         org: "SingleStore",
         orgHref: "https://www.singlestore.com/",
-        role: "Software Engineer",
-        period: "2023 — present",
+        period: "Sep 2023 — now",
+        roles: [
+            { title: "Software Engineering Manager", period: "Sep 2026 — now" },
+            { title: "Software Engineer", period: "Sep 2023 — Sep 2026" },
+        ],
         summary:
-            "I build Helios (managed SingleStore) and Aura Analyst. Things like data loading in the UI, making Command+K way faster, and tools that help people write SQL.",
+            "Joined as an engineer on Helios (managed SingleStore) and Aura Analyst: data loading in the UI, a 5× faster Command+K, and tools that help people write SQL. Since September 2026 I manage a team of engineers.",
         highlights: [
             {
                 title: "Helios",
@@ -157,8 +158,9 @@ export const CAREER = [
     },
     {
         org: "Peak AI",
-        role: "Software Engineer",
-        period: "2021 — 2023",
+        orgHref: "https://peak.ai/",
+        period: "Sep 2021 — Sep 2023",
+        roles: [{ title: "Software Engineer", period: "Sep 2021 — Sep 2023" }],
         summary: "Data products for decision intelligence.",
         highlights: [
             {
@@ -168,9 +170,15 @@ export const CAREER = [
         ],
     },
     {
-        org: "Google (contractor)",
-        role: "Cybage / Google Brand Studio",
-        period: "2018 — 2021",
+        org: "Cybage",
+        orgHref: "https://www.cybage.com/",
+        period: "Jul 2018 — Sep 2021",
+        roles: [
+            {
+                title: "Software Engineer · Google Brand Studio",
+                period: "Jul 2018 — Sep 2021",
+            },
+        ],
         summary:
             "Google for Startups platform and Glue, a TypeScript library used on a lot of marketing sites.",
         highlights: [
@@ -186,63 +194,42 @@ export const CAREER = [
     },
 ] as const;
 
-export type ProjectStatus = "building" | "shipped" | "paused";
-
-/** Side projects, creative work, experiments outside the main job. */
+/** Products and creative work outside the day job. */
 export const PROJECTS = [
     {
         title: "Sunchay",
-        status: "building" as const,
         description:
-            "A side product I am shaping in public. Early, private, and not ready for a landing page yet — progress lives on the X account.",
-        href: "https://x.com/SunchayApp",
+            "A memory you can text. Send links, screenshots, and notes from WhatsApp or the browser, then ask for them back in your own words.",
+        href: "https://sunchay.com",
         kind: "product",
     },
     {
         title: "Steno",
-        status: "shipped" as const,
         description:
             "Local Mac dictation. Hold to talk. It honestly made me more productive. Speech is fast, clarifies thought, and warms up the voice for music. All local, private.",
         href: "https://apps.apple.com/in/app/steno-dictation/id6762076728?mt=12",
         kind: "product",
     },
     {
-        title: "Varta",
-        status: "shipped" as const,
-        description:
-            "Excel sheet to WhatsApp messages. For when you live in spreadsheets and group chats.",
-        href: "https://varta.work",
-        kind: "product",
-    },
-    {
         title: "Jaipur wallpaper pack",
-        status: "shipped" as const,
         description: "Photos from Jaipur. Hawa Mahal light and all that.",
         href: "https://panchamkhaitan.gumroad.com/l/hawa-mahal-wallpaper",
         kind: "photography",
     },
     {
         title: "Andaman wallpaper pack",
-        status: "shipped" as const,
         description: "Photos from the Andaman Islands. Nice on a desktop.",
         href: "https://panchamkhaitan.gumroad.com/l/andaman-islands-wallpaper-pack",
         kind: "photography",
     },
     {
         title: "River Flows in You",
-        status: "shipped" as const,
         description:
             "Piano cover. I recorded it because the melody would not leave my head.",
         href: "https://on.soundcloud.com/YSrZ6G6tOagHFqYLuc",
         kind: "music",
     },
 ] as const;
-
-export const PROJECT_STATUS_LABEL: Record<ProjectStatus, string> = {
-    building: "Building",
-    shipped: "Shipped",
-    paused: "Paused",
-};
 
 /** Jump targets for ⌘K and search (product / org aliases). */
 export const SEARCH_ALIASES = [
@@ -279,15 +266,8 @@ export const SEARCH_ALIASES = [
         keywords: ["steno", "dictation"],
     },
     {
-        label: "Varta",
-        href: "https://varta.work",
-        meta: "Projects",
-        external: true,
-        keywords: ["varta", "whatsapp"],
-    },
-    {
         label: "Sunchay",
-        href: "https://x.com/SunchayApp",
+        href: "https://sunchay.com",
         meta: "Projects",
         external: true,
         keywords: ["sunchay"],
@@ -448,12 +428,12 @@ export const GEAR: GearItem[] = [
 ];
 
 export const NOW = {
-    updated: "2026-07-26",
+    updated: "2026-09-27",
     items: [
-        "Helios and Aura Analyst at SingleStore.",
-        "Shaping Sunchay in public (early).",
+        "New role: Software Engineering Manager at SingleStore, since early September.",
+        "Sunchay and Steno, both shipped and in daily use.",
         "Hindustani classical, year 3 of 7.",
-        "Steno for dictation. Evening walks. This site, redesigned toward modern minimal.",
+        "Evening walks with a camera. A quieter version of this site.",
     ],
 } as const;
 
@@ -492,14 +472,6 @@ export const TRAVEL_PHOTOS = [
     PHOTOS.jaipur,
     PHOTOS.peak,
 ] as const;
-
-/** Featured side project callout on the homepage. */
-export const FEATURED_PROJECT = {
-    title: "Steno",
-    blurb: "I have been using Steno to type and it honestly has made me so productive. Speech is fast, clarifies thought, and warms up the voice for music. All local, private.",
-    href: "https://apps.apple.com/in/app/steno-dictation/id6762076728?mt=12",
-    meta: "Shipped · Mac",
-} as const;
 
 /** Music callout + SoundCloud player on homepage. */
 export const FEATURED_MUSIC = {

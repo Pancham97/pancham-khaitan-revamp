@@ -18,7 +18,7 @@ import SearchTrigger from "@/components/SearchTrigger";
 import { FOLLOW, SOCIALS } from "@/data/site";
 
 /**
- * Quiet chrome: wordmark + search/theme + short desktop nav.
+ * One-row chrome: wordmark, desktop nav, search/theme.
  * Mobile: list icon opens a vertical drawer; footer stacks vertically.
  */
 export default function SiteChrome({ children }: { children: ReactNode }) {
@@ -200,6 +200,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
                                 pk
                             </span>
                         </Link>
+                        <SiteNav variant="desktop" />
                         <div className="site-top__actions">
                             <SearchTrigger />
                             <ThemeToggle />
@@ -238,9 +239,6 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
                             </button>
                         </div>
                     </div>
-
-                    {/* Desktop / tablet: inline middot nav */}
-                    <SiteNav variant="desktop" />
                 </header>
 
                 <main id="main" className="site-main" tabIndex={-1}>
@@ -249,19 +247,11 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
 
                 <footer className="site-footer">
                     <p className="site-footer__year">
-                        © {new Date().getFullYear()}
+                        © {new Date().getFullYear()} Pancham Khaitan
                     </p>
                     <nav aria-label="Site footer" className="site-footer__line">
-                        {footerLinks.map((link, i) => (
+                        {footerLinks.map((link) => (
                             <span key={link.href} className="site-footer__unit">
-                                {i > 0 && (
-                                    <span
-                                        className="site-footer__sep"
-                                        aria-hidden
-                                    >
-                                        {" · "}
-                                    </span>
-                                )}
                                 <a
                                     href={link.href}
                                     target={
