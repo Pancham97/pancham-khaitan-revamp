@@ -39,15 +39,10 @@ export default function SiteNav({
                 .filter(Boolean)
                 .join(" ")}
         >
-            {SECTIONS.map((item, i) => {
+            {SECTIONS.map((item) => {
                 const active = isActive(item.href);
                 return (
                     <span key={item.href} className="site-nav__unit">
-                        {!isMobile && i > 0 && (
-                            <span className="site-nav__sep" aria-hidden>
-                                {" · "}
-                            </span>
-                        )}
                         <Link
                             href={item.href}
                             prefetch
@@ -59,9 +54,13 @@ export default function SiteNav({
                             aria-current={active ? "page" : undefined}
                             onClick={() => onNavigate?.()}
                         >
-                            <span className="site-nav__label">{item.label}</span>
+                            <span className="site-nav__label">
+                                {item.label}
+                            </span>
                             {isMobile && item.hint ? (
-                                <span className="site-nav__hint">{item.hint}</span>
+                                <span className="site-nav__hint">
+                                    {item.hint}
+                                </span>
                             ) : null}
                         </Link>
                     </span>

@@ -57,24 +57,17 @@ export default function AboutPage() {
                 <p>
                     I grew up in Surat and studied Information Technology at
                     Birla Vishvakarma Mahavidyalaya. I like building things that
-                    feel fast and simple — products people are glad to come
-                    back to.
+                    feel fast and simple — products people are glad to come back
+                    to.
                 </p>
                 <p>
-                    These days I work at{" "}
-                    <a
-                        href={SITE.orgHref}
-                        target="_blank"
-                        rel="noreferrer"
-                    >
+                    Since September 2026 I have been a Software Engineering
+                    Manager at{" "}
+                    <a href={SITE.orgHref} target="_blank" rel="noreferrer">
                         SingleStore
-                    </a>{" "}
-                    on{" "}
-                    <a
-                        href={SITE.heliosHref}
-                        target="_blank"
-                        rel="noreferrer"
-                    >
+                    </a>
+                    , where I joined as an engineer in 2023 and worked on{" "}
+                    <a href={SITE.heliosHref} target="_blank" rel="noreferrer">
                         Helios
                     </a>{" "}
                     and{" "}
@@ -85,16 +78,16 @@ export default function AboutPage() {
                     >
                         Aura Analyst
                     </a>
-                    . Before that I was at Peak AI, and earlier I worked on
-                    Google stuff through Cybage (Google for Startups, Glue).
+                    . Before that I spent two years at Peak AI (2021 to 2023),
+                    and three at Cybage (2018 to 2021) building Google for
+                    Startups and Glue with Google Brand Studio.
                 </p>
                 <p>
                     Outside work I am in year three of a seven-year Hindustani
                     classical bachelor&apos;s. I practice on a Casio CTK-850IN,
-                    take evening walks with a camera, and sometimes ship side
-                    products like Steno because I wanted them myself. If you
-                    want to chat,{" "}
-                    <Link href="/contact">say hi</Link>.
+                    and take evening walks with a camera. I also make Sunchay
+                    and Steno, two products I wanted for myself. If you want to
+                    chat, <Link href="/contact">say hi</Link>.
                 </p>
             </div>
 
@@ -102,7 +95,7 @@ export default function AboutPage() {
                 <h2 id="about-ig" className="section-title">
                     Photos &amp; walks
                 </h2>
-                <p className="row-desc" style={{ marginBottom: "0.75rem" }}>
+                <p className="row-desc">
                     More walks and places on Instagram — no embed, just the
                     feed.{" "}
                     <a

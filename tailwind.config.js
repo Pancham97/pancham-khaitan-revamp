@@ -14,13 +14,9 @@ module.exports = {
                 "custom-grey": "#6f6f6f",
             },
             fontFamily: {
-                serif: [
-                    "var(--font-source-serif)",
-                    "Source Serif 4",
-                    "Georgia",
-                    "serif",
-                ],
+                sans: ["var(--font-geist)", "system-ui", "sans-serif"],
                 mono: [
+                    "var(--font-commit-mono)",
                     "ui-monospace",
                     "SFMono-Regular",
                     "Menlo",
